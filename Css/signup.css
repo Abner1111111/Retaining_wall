@@ -1,0 +1,133 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.signup-container {
+    width: 400px;
+    padding: 40px;
+    background-color: rgba(255, 255, 255, 0.95);
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+h2 {
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+    font-size: 28px;
+    font-weight: 600;
+}
+
+.form-group {
+    margin-bottom: 25px;
+    position: relative;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 15px;
+    font-weight: 500;
+    text-align: left;
+}
+
+input {
+    width: 100%;
+    padding: 12px 40px;
+    font-size: 15px;
+    border: 2px solid #e1e1e1;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+input:focus {
+    outline: none;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #73877b 0%, #e5d1d0 100%) border-box;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+input::placeholder {
+    color: #aaa;
+    font-size: small;
+}
+
+ion-icon {
+    position: absolute;
+    top: 60%;
+    left: 12px;
+    transform: translateY(-30%);
+    font-size: 20px;
+    color: #666;
+    pointer-events: none;
+}
+
+button {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #666;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-bottom: 15px;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    background: linear-gradient(135deg, #73877b 0%, #b2967d 100%);
+    color: #fff;
+}
+
+.error-message {
+    color: #ff4444;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.success-message {
+    color: #00C851;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.login-link {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.login-link a {
+    color: #666;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.login-link a:hover {
+    color: #73877b;
+}
+
+@media (max-width: 480px) {
+    .signup-container {
+        width: 90%;
+        padding: 30px;
+    }
+}

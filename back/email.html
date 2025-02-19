@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to Our System</title>
+    <style>
+        /* Reset styles for email clients */
+        body, table, td, div, p, a {
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+        }
+
+        /* Container styles */
+        .email-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        /* Card styles */
+        .card {
+            border: 2px solid transparent;
+            background: linear-gradient(white, white) padding-box, 
+                       linear-gradient(135deg, #73877b 0%, #e5d1d0 100%) border-box;
+            border-radius: 12px;
+            padding: 32px;
+            margin: 20px 0;
+        }
+
+        /* Typography */
+        h1 {
+            color: #2d3436;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .welcome-message {
+            color: #73877b;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 16px;
+        }
+
+        p {
+            color: #636e72;
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 16px;
+        }
+
+        /* Button styles */
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #73877b 0%, #e5d1d0 100%);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 500;
+            margin: 24px 0;
+        }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            color: #b2bec3;
+            font-size: 14px;
+            margin-top: 32px;
+        }
+
+        /* Responsive design */
+        @media screen and (max-width: 480px) {
+            .email-container {
+                padding: 20px 10px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="card">
+            <h1>Welcome to Retaining Wall Failure Assessment Web-based Tool</h1>
+            
+            <p class="welcome-message">Hello {$firstName}!</p>
+            
+            <p>We're thrilled to have you join our community. Your account has been successfully created and is ready to use.</p>
+            
+            <p>You can access your account using:</p>
+            <p style="background: #f5f6fa; padding: 12px; border-radius: 6px;">
+                Email: <strong>{$email}</strong>
+            </p>
+            
+        <!--
+
+         <center>
+                <a href="#login-url" class="cta-button">Get Started</a>
+            </center>
+            
+        -->   
+            
+            <p>If you have any questions or need assistance, please don't hesitate to reach out to our support team. We're here to help!</p>
+            
+            <p>Best regards,<br>The Team</p>
+        </div>
+        
+        <div class="footer">
+            <p>© 2025 Engineering Solutions. All rights reserved.</p>
+            <p>This email was sent to {$email}</p>
+        </div>
+    </div>
+</body>
+</html>
