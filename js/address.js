@@ -67,7 +67,6 @@ document.getElementById('city').addEventListener('change', async function() {
     }
 });
 
-// Initialize the province selector when the page loads
 document.addEventListener('DOMContentLoaded', function() {
     initializeProvinces();
 });

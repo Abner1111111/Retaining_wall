@@ -1,470 +1,238 @@
 <?php
 session_start();
-require "back/db_configs.php";
+require "db_configs.php";
 
+// Check authentication
 if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
-    header("Location: index.php");
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Not authenticated']);
     exit();
 }
 
-
-
-function identifyFailureTypes($assessmentData) {
-    $failureTypes = [];
-    $indicators = $assessmentData['visual_indicators'] ?? [];
-    $structuralAnalysis = $assessmentData['structural_analysis'] ?? '';
-    $inSituConditions = $assessmentData['in_situ_conditions'] ?? '';
-
-    if (
-        in_array('Horizontal cracks at the base or lower-height', $indicators) ||
-        in_array('Lateral displacement of entire structure', $indicators) ||
-        in_array('Soil Erosion', $indicators) ||
-        $structuralAnalysis === 'Narrow base' ||
-        $inSituConditions === 'Low Shear Resistance' ||
-        $inSituConditions === 'Poor soil compaction'
-    ) {
-        $failureTypes['sliding'] = [
-            'type' => 'Sliding Failure',
-            'evidence' => 'Horizontal base cracks, lateral movement, and/or poor foundation conditions indicate potential sliding failure.'
-        ];
-    }
-    if (
-        in_array('Leaning of entire structure', $indicators) ||
-        in_array('Rotational movement of entire structure', $indicators) ||
-        in_array('Tilting along the length of entire structure', $indicators) ||
-        $structuralAnalysis === 'Too tall relative to base width' ||
-        $inSituConditions === 'High Surcharge Load' ||
-        $inSituConditions === 'High Water Table'
-    ) {
-        $failureTypes['overturning'] = [
-            'type' => 'Overturning Failure',
-            'evidence' => 'Wall rotation, leaning, and/or excessive height-to-width ratio suggest risk of overturning.'
-        ];
-    }
-
-    if (
-        in_array('Horizontal cracks at middle-height', $indicators) ||
-        in_array('Bulging in middle height', $indicators) ||
-        in_array('Bulges', $indicators) ||
-        $structuralAnalysis === 'Low unit weight of wall material' ||
-        $inSituConditions === 'High Lateral Earth Pressures'
-    ) {
-        $failureTypes['bending'] = [
-            'type' => 'Wall Bending',
-            'evidence' => 'Mid-height horizontal cracks, bulging, and/or excessive lateral pressure indicate bending failure.'
-        ];
-    }
-
-    if (
-        in_array('Vertical Cracks', $indicators) ||
-        in_array('Shear Cracks', $indicators) ||
-        in_array('Crumbling wall material', $indicators) ||
-        $structuralAnalysis === 'Low compressive strength of wall material' ||
-        $inSituConditions === 'High Compressibility/Compression Index'
-    ) {
-        $failureTypes['fracture'] = [
-            'type' => 'Wall Fracture',
-            'evidence' => 'Vertical and shear cracks, material deterioration, and/or low material strength indicate fracture failure.'
-        ];
-    }
-
-    return $failureTypes;
+// Verify CSRF token
+if (!isset($_POST['form_token']) || $_POST['form_token'] !== $_SESSION['form_token']) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'Invalid form token']);
+    exit();
 }
 
-function identifyCauseOfFailure($assessmentData) {
-    $causes = [];
-    $indicators = $assessmentData['visual_indicators'] ?? [];
-    $structuralAnalysis = $assessmentData['structural_analysis'] ?? '';
-    $inSituConditions = $assessmentData['in_situ_conditions'] ?? '';
-    if (
-        in_array('Bulging sections', $indicators) ||
-        in_array('Soil creep', $indicators) ||
-        $inSituConditions === 'High Surcharge Load'
-    ) {
-        $causes['backfill_pressure'] = 'Backfill Earth Pressure: Excessive lateral pressure from soil mass';
-    }
-    if (
-        in_array('Water seepage', $indicators) ||
-        in_array('Muddy Soil', $indicators) ||
-        $inSituConditions === 'High Water Table' ||
-        $inSituConditions === 'High Moisture Content'
-    ) {
-        $causes['backfill_saturation'] = 'Backfill Saturation: Poor drainage leading to saturated soil conditions';
-    }
+try {
+    $pdo->beginTransaction();
 
-    if (
-        $inSituConditions === 'Low Shear Strength' ||
-        $inSituConditions === 'Low Soil Resistance to Penetration' ||
-        in_array('Settlement', $indicators)
-    ) {
-        $causes['low_shear_strength'] = 'Base Low Shear Strength: Inadequate foundation soil strength';
-    }
-
-    if (
-        $inSituConditions === 'High Compressibility/Compression Index' ||
-        $inSituConditions === 'High Consolidation Potential' ||
-        in_array('Settlement', $indicators)
-    ) {
-        $causes['compressible_soil'] = 'Compressible Soil Foundation: Excessive foundation soil compression';
-    }
-
-    return $causes;
-}
-
-function assessCondition($assessmentData, $failureTypes, $causes) {
-    $hasDistress = !empty($failureTypes) || !empty($causes);
-    $indicators = $assessmentData['visual_indicators'] ?? [];
+    $stmt = $pdo->prepare("INSERT INTO assessments (user_id, contract_id, structure_name, inspection_date, 
+        construction_date, street_address, province_code, city_code, barangay_code) 
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     
-    $severeIndicators = [
-        'Collapse of upper-height',
-        'Leaning of entire structure',
-        'Crumbling wall material',
-        'Exposed reinforcements',
-        'Landslide'
-    ];
+    $stmt->execute([
+        $_SESSION['user_id'],
+        $_POST['ContractID'],
+        $_POST['Name'] ?? null,
+        $_POST['Date'],
+        $_POST['ConstructionDate'],
+        $_POST['street_address'],
+        $_POST['province'],
+        $_POST['city'],
+        $_POST['barangay']
+    ]);
 
-    $severeIssues = array_intersect($indicators, $severeIndicators) !== [];
+    $assessment_id = $pdo->lastInsertId();
 
-    if (!$hasDistress) {
-        return [
-            'category' => 'No need of Remediation',
-            'description' => 'No signs of distress indicating functionality problems.',
-            'functionality' => 'The wall maintains stability and effectively performs its intended function.'
-        ];
-    } elseif ($hasDistress && !$severeIssues) {
-        return [
-            'category' => 'Need of Remediation',
-            'description' => 'There are signs of distress indicating functionality problems.',
-            'functionality' => 'The wall requires intervention to maintain proper functionality.'
-        ];
-    } else {
-        return [
-            'category' => 'Wall Replacement',
-            'description' => 'Remediation will no longer improve functionality.',
-            'functionality' => 'The wall has severe functionality issues requiring complete replacement.'
-        ];
-    }
-}
-
-function determineRemediation($condition, $failureTypes, $causes) {
-    $remediation = [];
+    $stmt = $pdo->prepare("INSERT INTO wall_details (assessment_id, height, base_width, design_type, material_type) 
+        VALUES (?, ?, ?, ?, ?)");
     
-    if ($condition['category'] === 'No need of Remediation') {
-        return ['Routine maintenance and monitoring'];
-    }
-    
-    if ($condition['category'] === 'Wall Replacement') {
-        return ['Complete wall replacement required'];
-    }
-    foreach ($failureTypes as $key => $failure) {
-        switch ($key) {
-            case 'sliding':
-                $remediation = array_merge($remediation, ['Soil nailing', 'Soil Riveting', 'Bench Footing']);
-                break;
-            case 'overturning':
-                $remediation = array_merge($remediation, ['Anchoring', 'Tiebacks', 'Wall Buttressing']);
-                break;
-            case 'bending':
-                $remediation = array_merge($remediation, ['Concrete jacket', 'Fiber-Reinforced Shotcrete', 'Steel Bracing']);
-                break;
-            case 'fracture':
-                $remediation = array_merge($remediation, ['Crack Injections', 'Concrete jacket']);
-                break;
+    $stmt->execute([
+        $assessment_id,
+        $_POST['Height'],
+        $_POST['Base'],
+        $_POST['Type_of_Design'],
+        $_POST['Type_of_Material']
+    ]);
+
+    if (isset($_POST['in_situ_conditions']) && isset($_POST['in_situ_values'])) {
+        $stmt = $pdo->prepare("INSERT INTO in_situ_conditions (assessment_id, test_type, test_result) VALUES (?, ?, ?)");
+        
+        foreach ($_POST['in_situ_conditions'] as $key => $test_type) {
+            if (!empty($test_type) && !empty($_POST['in_situ_values'][$key])) {
+                $stmt->execute([$assessment_id, $test_type, $_POST['in_situ_values'][$key]]);
+            }
         }
     }
 
-    foreach ($causes as $key => $cause) {
-        switch ($key) {
-            case 'backfill_saturation':
-                $remediation = array_merge($remediation, ['Perforated pipes', 'Geocomposite drains', 'Geotextiles']);
-                break;
-            case 'low_shear_strength':
-                $remediation = array_merge($remediation, ['Soil Chemical Grouting', 'Soil Binders', 'Underpinning']);
-                break;
-            case 'compressible_soil':
-                $remediation = array_merge($remediation, ['Piling', 'Soil Replacement', 'Underpinning']);
-                break;
+    // Insert structural analysis
+    if (isset($_POST['structural_analysis']) && isset($_POST['structural_analysis_value'])) {
+        $stmt = $pdo->prepare("INSERT INTO structural_analysis (assessment_id, test_type, test_result) VALUES (?, ?, ?)");
+        
+        foreach ($_POST['structural_analysis'] as $key => $test_type) {
+            if (!empty($test_type) && !empty($_POST['structural_analysis_value'][$key])) {
+                $stmt->execute([$assessment_id, $test_type, $_POST['structural_analysis_value'][$key]]);
+            }
         }
     }
 
-    return array_unique($remediation);
-}
-
-function generateAssessmentResults($assessmentData) {
-    $failureTypes = identifyFailureTypes($assessmentData);
-    $causes = identifyCauseOfFailure($assessmentData);
-    $condition = assessCondition($assessmentData, $failureTypes, $causes);
-    $issuesSummary = [];
-    if (!empty($assessmentData['structural_analysis'])) {
-        $issuesSummary[] = "Structural Issue: " . $assessmentData['structural_analysis'];
-    }
-    if (!empty($assessmentData['issues_observed'])) {
-        $issuesSummary[] = "Observed Issue: " . $assessmentData['issues_observed'];
-    }
-    if (!empty($assessmentData['in_situ_conditions'])) {
-        $issuesSummary[] = "Ground Condition: " . $assessmentData['in_situ_conditions'];
-    }
-
-    if (!empty($assessmentData['visual_indicators'])) {
-        foreach ($assessmentData['visual_indicators'] as $indicator) {
-            $issuesSummary[] = "Visual Indicator: " . $indicator;
+    // Insert visual indicators
+    if (isset($_POST['test'])) {
+        $stmt = $pdo->prepare("INSERT INTO visual_indicators (assessment_id, indicator_category, indicator_name) 
+            VALUES (?, ?, ?)");
+        
+        foreach ($_POST['test'] as $indicator) {
+            // Determine category based on indicator
+            $category = determineIndicatorCategory($indicator);
+            $stmt->execute([$assessment_id, $category, $indicator]);
         }
     }
 
-    $labTests = [];
-    
-    foreach ($failureTypes as $key => $failure) {
-        switch ($key) {
-            case 'sliding':
-                $labTests = array_merge($labTests, [
-                    'Direct Shear Test' => 'Determine soil shear strength parameters',
-                    'Standard Penetration Test (SPT)' => 'Evaluate foundation soil density and strength',
-                    'Field Density Test' => 'Check backfill compaction'
-                ]);
-                break;
-            case 'overturning':
-                $labTests = array_merge($labTests, [
-                    'Unit Weight Test' => 'Determine soil mass properties',
-                    'Moisture Content Test' => 'Assess soil water content',
-                    'Consolidation Test' => 'Evaluate soil settlement characteristics'
-                ]);
-                break;
-            case 'bending':
-                $labTests = array_merge($labTests, [
-                    'Core Compression Test' => 'Evaluate wall material strength',
-                    'Schmidt Hammer Test' => 'Non-destructive strength assessment',
-                    'Ultrasonic Pulse Velocity Test' => 'Check material integrity'
-                ]);
-                break;
-            case 'fracture':
-                $labTests = array_merge($labTests, [
-                    'Concrete Core Testing' => 'Assess material strength',
-                    'Crack Width Measurement' => 'Monitor crack progression',
-                    'Carbonation Test' => 'Check concrete deterioration'
-                ]);
-                break;
+    // Insert analysis methods
+    if (isset($_POST['analysis'])) {
+        $stmt = $pdo->prepare("INSERT INTO analysis_methods (assessment_id, method_name) VALUES (?, ?)");
+        
+        foreach ($_POST['analysis'] as $method) {
+            $stmt->execute([$assessment_id, $method]);
         }
     }
+
+    // Calculate and insert assessment results
+    $severity_level = calculateSeverityLevel($_POST);
+    $diagnosis = generateDiagnosis($_POST);
+    $recommendations = generateRecommendations($_POST);
+
+    $stmt = $pdo->prepare("INSERT INTO assessment_results (assessment_id, severity_level, condition_diagnosis, 
+        recommendations) VALUES (?, ?, ?, ?)");
     
-    switch($assessmentData['type_of_material']) {
-        case 'Reinforced Concrete':
-            $labTests = array_merge($labTests, [
-                'Rebound Hammer Test' => 'Non-destructive strength assessment',
-                'Half-cell Potential Test' => 'Check reinforcement corrosion',
-                'Carbonation Depth Test' => 'Assess concrete deterioration'
-            ]);
-            break;
-        case 'Stone Masonry':
-            $labTests = array_merge($labTests, [
-                'Point Load Test' => 'Stone strength assessment',
-                'Water Absorption Test' => 'Evaluate material durability',
-                'Mortar Analysis' => 'Check binding material quality'
-            ]);
-            break;
-        case 'Gabion':
-            $labTests = array_merge($labTests, [
-                'Wire Tensile Test' => 'Check mesh strength',
-                'Rock Quality Test' => 'Assess fill material durability',
-                'Corrosion Assessment' => 'Evaluate wire mesh condition'
-            ]);
-            break;
-    }
-    
-    $remediation = determineRemediation($condition, $failureTypes, $causes);
-    
-    $conclusion = [
-        'Primary Assessment' => [
-            'Failure Types' => array_column($failureTypes, 'type'),
-            'Root Causes' => array_values($causes),
-            'Current Condition' => [
-                'Category' => $condition['category'],
-                'Description' => $condition['description'],
-                'Functionality Status' => $condition['functionality']
-            ]
-        ],
-        'Required Testing' => [
-            'Immediate Tests' => array_slice($labTests, 0, 3), 
-            'Secondary Tests' => array_slice($labTests, 3),
-        ],
-        'Action Plan' => [
-            'Remediation Methods' => $remediation,
-            'Monitoring Requirements' => [
-                'Inspection Frequency' => $condition['category'] === 'Need of Remediation' ? 'Monthly' : 'Quarterly',
-                'Key Parameters' => [
-                    'Displacement monitoring',
-                    'Crack width measurement',
-                    'Water seepage observation',
-                    'Ground movement assessment'
-                ]
-            ]
+    $stmt->execute([
+        $assessment_id,
+        $severity_level,
+        $diagnosis,
+        $recommendations
+    ]);
+
+    $pdo->commit();
+
+    // Return success response with results
+    echo json_encode([
+        'success' => true,
+        'results' => [
+            'severity_level' => $severity_level,
+            'condition_diagnosis' => $diagnosis,
+            'recommendations' => $recommendations
         ]
-    ];
+    ]);
 
-
-    $severityScore = 0;
-    $severityScore += count($failureTypes) * 2; 
-    $severityScore += count($causes); 
-    $severityScore += ($condition['category'] === 'Wall Replacement') ? 5 : 
-                     ($condition['category'] === 'Need of Remediation' ? 3 : 0);
-
-    $severityLevel = $severityScore >= 8 ? "High" : 
-                     ($severityScore >= 5 ? "Medium" : "Low");
-
-    return [
-        'issues_summary' => implode("; ", $issuesSummary),
-        'failure_types' => implode("; ", array_column($failureTypes, 'type')),
-        'causes_of_failure' => implode("; ", array_values($causes)),
-        'condition_diagnosis' => "{$condition['category']}: {$condition['description']}",
-        'functionality' => $condition['functionality'],
-        'recommendations' => implode("; ", $remediation),
-        'recommended_tests' => implode("; ", array_keys($labTests)),
-        'severity_level' => $severityLevel,
-        'conclusion' => $conclusion
-    ];
+} catch (Exception $e) {
+    $pdo->rollBack();
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
 }
-function saveAddress($pdo, $addressData) {
-    try {
-        $stmt = $pdo->prepare("
-            INSERT INTO addresses (
-                street_address,
-                barangay_code,
-                city_code,
-                province_code,
-                region_code
-            ) VALUES (?, ?, ?, ?, ?)
-        ");
+
+// Helper function to determine indicator category
+function determineIndicatorCategory($indicator) {
+    $categories = [
+        'Front Face' => ['Horizontal or diagonal cracks', 'Shear Cracks', 'Vertical Cracks', 'Water Seepage'],
+        'Wall Displacements' => ['Leaning', 'Rotational movement', 'Lateral displacement'],
+        'Wall Base' => ['Misalignment', 'Settlement', 'Soil Erosion'],
+        'Foundation Soil' => ['Muddy Soil', 'Water Pooling', 'Soil heave'],
+        'Backfill Soil' => ['Soil creep', 'Tension cracks', 'Landslide'],
+        'Nearby Structure' => ['Natural loads', 'Vibrations', 'Overloading']
+    ];
+
+    foreach ($categories as $category => $indicators) {
+        foreach ($indicators as $ind) {
+            if (stripos($indicator, $ind) !== false) {
+                return $category;
+            }
+        }
+    }
+    
+    return 'Other';
+}
+
+// Helper function to calculate severity level
+function calculateSeverityLevel($data) {
+    $severity_score = 0;
+    
+    // Check visual indicators
+    if (isset($data['test'])) {
+        $critical_indicators = ['Collapse', 'Landslide', 'Rotational movement'];
+        $major_indicators = ['Leaning', 'Bulging', 'Settlement'];
         
-        $stmt->execute([
-            $addressData['street_address'],
-            $addressData['barangay_code'],
-            $addressData['city_code'],
-            $addressData['province_code'],
-            '120000000' // Region 12 code
-        ]);
-        
-        return $pdo->lastInsertId();
-    } catch (Exception $e) {
-        error_log("Error saving address: " . $e->getMessage());
-        throw $e;
+        foreach ($data['test'] as $indicator) {
+            if (in_array($indicator, $critical_indicators)) {
+                $severity_score += 3;
+            } elseif (in_array($indicator, $major_indicators)) {
+                $severity_score += 2;
+            } else {
+                $severity_score += 1;
+            }
+        }
+    }
+    
+    // Return severity level based on score
+    if ($severity_score >= 5) {
+        return 'High';
+    } elseif ($severity_score >= 3) {
+        return 'Medium';
+    } else {
+        return 'Low';
     }
 }
 
-function saveAssessment($pdo, $assessmentData) {
-    try {
-        $pdo->beginTransaction();
+// Helper function to generate diagnosis
+function generateDiagnosis($data) {
+    $diagnosis = [];
+    
+    if (isset($data['test'])) {
+        // Group issues by category
+        $structural_issues = array_filter($data['test'], function($indicator) {
+            return stripos($indicator, 'crack') !== false || 
+                   stripos($indicator, 'bulging') !== false ||
+                   stripos($indicator, 'leaning') !== false;
+        });
         
-        // First save the address
-        $addressId = saveAddress($pdo, [
-            'street_address' => $assessmentData['street_address'],
-            'barangay_code' => $assessmentData['barangay_code'],
-            'city_code' => $assessmentData['city_code'],
-            'province_code' => $assessmentData['province_code']
-        ]);
+        $drainage_issues = array_filter($data['test'], function($indicator) {
+            return stripos($indicator, 'water') !== false || 
+                   stripos($indicator, 'seepage') !== false ||
+                   stripos($indicator, 'erosion') !== false;
+        });
         
-        // Then save the assessment with the address_id
-        $stmt = $pdo->prepare("
-            INSERT INTO assessments (
-                user_id,
-                name,
-                age,
-                address_id,
-                issues_observed,
-                type_of_design,
-                type_of_material,
-                structural_analysis,
-                in_situ_conditions
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ");
-        
-        $stmt->execute([
-            $_SESSION['user_id'],
-            $assessmentData['name'],
-            $assessmentData['age'],
-            $addressId,
-            $assessmentData['issues_observed'],
-            $assessmentData['type_of_design'],
-            $assessmentData['type_of_material'],
-            $assessmentData['structural_analysis'],
-            $assessmentData['in_situ_conditions']
-        ]);
-        
-        
-        $assessmentId = $pdo->lastInsertId();
-
-        $results = generateAssessmentResults($assessmentData);
-
-        $stmt = $pdo->prepare("
-            INSERT INTO assessment_results (
-                assessment_id,
-                issues_summary,
-                condition_diagnosis,
-                failure_types,
-                recommended_tests,
-                recommendations,
-                severity_level
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        ");
-        
-        $issuesSummary = array_filter([
-            $assessmentData['issues_observed'],
-            $assessmentData['structural_analysis'],
-            $assessmentData['in_situ_conditions']
-        ]);
-        
-        $stmt->execute([
-            $assessmentId,
-            implode("; ", $issuesSummary),
-            $results['condition_diagnosis'],
-            $results['failure_types'],
-            $results['recommended_tests'],
-            $results['recommendations'],
-            $results['severity_level']
-        ]);
-
-
-        if (!empty($assessmentData['visual_indicators'])) {
-            $stmt = $pdo->prepare("INSERT INTO visual_indicators (assessment_id, indicator_type) VALUES (?, ?)");
-            foreach ($assessmentData['visual_indicators'] as $indicator) {
-                $stmt->execute([$assessmentId, $indicator]);
-            }
+        // Build diagnosis
+        if ($structural_issues) {
+            $diagnosis[] = "Structural integrity concerns detected: " . implode(", ", $structural_issues);
         }
-
-        if (!empty($assessmentData['analysis_methods'])) {
-            $stmt = $pdo->prepare("INSERT INTO analysis_methods (assessment_id, method_type) VALUES (?, ?)");
-            foreach ($assessmentData['analysis_methods'] as $method) {
-                $stmt->execute([$assessmentId, $method]);
-            }
+        
+        if ($drainage_issues) {
+            $diagnosis[] = "Drainage issues identified: " . implode(", ", $drainage_issues);
         }
-
-        $pdo->commit();
-        return [
-            'success' => true,
-            'assessment_id' => $pdo->lastInsertId(),
-            'address_id' => $addressId
-        ];
-    } catch (Exception $e) {
-        $pdo->rollBack();
-        throw $e;
     }
+    
+    return implode(" ", $diagnosis) ?: "No significant issues detected.";
 }
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $assessmentData = [
-        'name' => $_POST['Name'] ?? '',
-        'age' => $_POST['Age'] ?? '',
+
+// Helper function to generate recommendations
+function generateRecommendations($data) {
+    $recommendations = [];
     
-        'issues_observed' => $_POST['Issues_Observed'] ?? '',
-        'type_of_design' => $_POST['Type_of_Design'] ?? '',
-        'type_of_material' => $_POST['Type_of_Material'] ?? '',
-        'structural_analysis' => $_POST['structural_analysis'] ?? '',
-        'in_situ_conditions' => $_POST['in_situ_conditions'] ?? '',
-        'visual_indicators' => $_POST['test'] ?? [],
-        'analysis_methods' => $_POST['analysis'] ?? []
-    ];
+    if (isset($data['test'])) {
+        // Add recommendations based on issues
+        foreach ($data['test'] as $indicator) {
+            if (stripos($indicator, 'crack') !== false) {
+                $recommendations[] = "Conduct detailed structural analysis and consider crack repair or reinforcement.";
+            }
+            if (stripos($indicator, 'water') !== false || stripos($indicator, 'seepage') !== false) {
+                $recommendations[] = "Improve drainage system and waterproofing measures.";
+            }
+            if (stripos($indicator, 'leaning') !== false || stripos($indicator, 'bulging') !== false) {
+                $recommendations[] = "Immediate structural evaluation required. Consider stabilization measures.";
+            }
+            if (stripos($indicator, 'erosion') !== false) {
+                $recommendations[] = "Implement erosion control measures and improve surface drainage.";
+            }
+        }
+    }
     
-    $result = saveAssessment($pdo, $assessmentData);
+    // Add general recommendations if no specific issues
+    if (empty($recommendations)) {
+        $recommendations[] = "Regular monitoring and maintenance recommended.";
+    }
     
-    header('Content-Type: application/json');
-    echo json_encode($result);
-    exit();
+    return implode(" ", array_unique($recommendations));
 }
 ?>

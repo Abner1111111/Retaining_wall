@@ -17,7 +17,351 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Retaining Wall Assessment Tool</title>
-        <link rel="stylesheet" href="Css/Questionnaire.css">
+       <Style>
+        * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', 'Roboto', sans-serif;
+    line-height: 1.6;
+    background-color: #f5f5f5;
+    color: #333;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.header {
+    background-color: #73877b;
+    color: white;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+
+.user-info {
+    float: right;
+    font-size: 0.9em;
+}
+
+.section {
+    background: white;
+    padding: 25px;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+input[type="text"],
+input[type="number"],
+textarea {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e1e1e1;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+textarea {
+    height: 100px;
+    resize: vertical;
+}
+
+.checkbox-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 25px;
+    margin-bottom: 30px;
+}
+
+.category {
+    background: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    border: 1px solid #e1e1e1;
+}
+
+.category h3 {
+    color: #73877b;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #73877b;
+}
+
+.checkbox-item {
+    position: relative;
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.checkbox-item:hover {
+    background: #e9ecef;
+}
+
+.checkbox-item input[type="checkbox"] {
+    margin-right: 12px;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.checkbox-item input[type="checkbox"]:checked + label {
+    color: #73877b;
+    font-weight: 500;
+}
+
+.checkbox-item label {
+    cursor: pointer;
+    font-size: 0.95em;
+    margin-bottom: 0;
+    flex: 1;
+}
+
+
+.checkbox-item input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: #fff;
+    border: 2px solid #73877b;
+    border-radius: 4px;
+    width: 20px;
+    height: 20px;
+    position: relative;
+    transition: all 0.2s ease;
+    
+}
+
+.checkbox-item input[type="checkbox"]:checked {
+    background-color: #73877b;
+}
+
+.checkbox-item input[type="checkbox"]:checked::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+button {
+    background: #73877b;
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+button:hover {
+    background: #5a6e62;
+    transform: translateY(-1px);
+}
+
+.results {
+    display: none;
+    margin-top: 30px;
+}
+
+.error-message {
+    color: #dc3545;
+    padding: 10px;
+    margin: 10px 0;
+    background: #ffe6e6;
+    border-radius: 5px;
+}
+
+.success-message {
+    color: #28a745;
+    padding: 10px;
+    margin: 10px 0;
+    background: #e6ffe6;
+    border-radius: 5px;
+}
+.location-fields {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.location-field {
+    margin-bottom: 15px;
+}
+
+.location-field label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 500;
+}
+
+.location-field input {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+
+    border-radius: 4px;
+}
+.address-section {
+    margin: 20px 0;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.address-section h3 {
+    color: #73877b;
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #73877b;
+}
+
+.address-section .form-group {
+    margin-bottom: 15px;
+}
+
+.address-section select,
+.address-section input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e1e1e1;
+    border-radius: 5px;
+    font-size: 14px;
+    background: white;
+}
+
+.address-section select:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.address-section select:valid,
+.address-section input[type="text"]:valid {
+    border-color: #28a745;
+}
+.coordinates-group {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.coordinates-group input {
+    width: 100%;
+}
+
+input:valid {
+    border-color: #28a745;
+}
+select:valid {
+    border-color: #28a745;
+}
+select {
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #e1e1e1;
+    color: #5e5e5e;
+    border-radius: 5px;
+    font-size: 14px;
+    background: white;
+}
+
+.assessment-results {
+    margin-top: 20px;
+    padding: 20px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e1e1e1;
+}
+
+.assessment-results h3 {
+    color: #333;
+    margin-bottom: 15px;
+}
+
+.assessment-results h4 {
+    color: #73877b;
+    margin: 15px 0 8px 0;
+}
+
+.severity-indicator {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 4px;
+    color: white;
+    font-weight: 500;
+    margin: 10px 0;
+}
+
+.severity-indicator.high {
+    background-color: #dc3545;
+}
+
+.severity-indicator.medium {
+    background-color: #ffc107;
+    color: #000;
+}
+
+.severity-indicator.low {
+    background-color: #28a745;
+}
+
+.assessment-results p {
+    margin: 8px 0;
+    line-height: 1.6;
+}
+
+
+        @media (max-width: 768px) {
+            .checkbox-group {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .checkbox-container {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .category {
+                padding: 15px;
+            }
+        }
+       </Style>
             </head>
             <body>
         <?php
@@ -29,24 +373,13 @@
             <div class="user-info">
                 
                 Welcome, <?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?>
-                <div id="clock" style="color: #f5f5f5; font-size: 18px; font-weight: bold;"></div>
+                
             </div>
             <h1 style="color: #f5f5f5;">Retaining Wall Assessment Tool</h1>
             <p>Professional tool for diagnosing and resolving retaining wall issues</p>
             
         </div>
-     <script> function updateClock() {
-        const now = new Date();
-        const hours = now.getHours().toString().padStart(2, '0');
-        const minutes = now.getMinutes().toString().padStart(2, '0');
-        const seconds = now.getSeconds().toString().padStart(2, '0');
-        const formattedTime = `${hours}:${minutes}:${seconds}`;
-        document.getElementById('clock').textContent = formattedTime;
-    }
-    
-    setInterval(updateClock, 1000);
-    updateClock();
-    </script>
+
             <form id="assessmentForm">
             <div class="section" id="phase1">
                 <h2>Phase 0</h2>
@@ -89,11 +422,8 @@
                             </div>
                             
                         </div>    
-
                         <div class="location-field">
-                            
                         <div class="form-group">
-                                
                                 <label for="ContractID">Contract ID</label>
                                 <input type="text" id="ContractID" name="ContractID" 
                                     placeholder="Contract ID" required>
@@ -108,82 +438,8 @@
                     </div>
                 </div>
             </div>
+            <script src="js/address.js"></script>
 
-<script>
-    const API_BASE_URL = 'https://psgc.gitlab.io/api';
-        const REGION_12_CODE = '120000000';
-        async function fetchFromAPI(url) {
-            try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                const data = await response.json();
-                console.log('API Response:', url, data); 
-                return data;
-            } catch (error) {
-                console.error('Error fetching data:', url, error);
-                return [];
-            }
-        }
-
-        async function initializeProvinces() {
-            const provinceSelect = document.getElementById('province');
-            console.log('Fetching provinces for Region 12...'); 
-            
-
-            const provinces = await fetchFromAPI(`${API_BASE_URL}/regions/${REGION_12_CODE}/provinces`);
-            
-            if (provinces.length > 0) {
-                provinces.sort((a, b) => a.name.localeCompare(b.name)).forEach(province => {
-                    provinceSelect.add(new Option(province.name, province.code));
-                });
-                console.log('Provinces loaded:', provinces.length); 
-            } else {
-                console.error('No provinces found for Region 12');
-            }
-        }
-
-        document.getElementById('province').addEventListener('change', async function() {
-            const citySelect = document.getElementById('city');
-            const barangaySelect = document.getElementById('barangay');
-            
-            citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
-            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-            
-            if (this.value) {
-                citySelect.disabled = false;
-                const cities = await fetchFromAPI(`${API_BASE_URL}/provinces/${this.value}/cities-municipalities`);
-                cities.sort((a, b) => a.name.localeCompare(b.name)).forEach(city => {
-                    citySelect.add(new Option(city.name, city.code));
-                });
-            } else {
-                citySelect.disabled = true;
-                barangaySelect.disabled = true;
-            }
-        });
-
-        document.getElementById('city').addEventListener('change', async function() {
-            const barangaySelect = document.getElementById('barangay');
-            
-            barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
-            
-            if (this.value) {
-                barangaySelect.disabled = false;
-                const barangays = await fetchFromAPI(`${API_BASE_URL}/cities-municipalities/${this.value}/barangays`);
-                barangays.sort((a, b) => a.name.localeCompare(b.name)).forEach(barangay => {
-                    barangaySelect.add(new Option(barangay.name, barangay.code));
-                });
-            } else {
-                barangaySelect.disabled = true;
-            }
-        });
-
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeProvinces();
-        });
-
-</script>
         <div class="section">
             <h2>Phase 1</h2>
             <div class="location-field">
@@ -226,42 +482,219 @@
                         </div>
                     </div>
 
-    <div class="form-group">
+                    <div class="form-group">
+    <label for="in_situ_conditions">In-Situ Conditions</label>
+    <div id="in-situ-conditions-container">
+        <div class="in-situ-entry" style="display: flex; gap: 10px; margin-bottom: 10px;">
+            <select class="in-situ-condition" name="in_situ_conditions[]" required style="flex: 1;">
+                <option value="">-- Select Condition --</option>
+                <option value="(FFM, DM) Fixed Funnel Method or Direct Measurement">(FFM, DM) Fixed Funnel Method or Direct Measurement</option>
+                <option value="(PCT) Proctor Compaction Test">(PCT) Proctor Compaction Test</option>
+                <option value="(DST) Direct Shear Test">(DST) Direct Shear Test</option>
+                <option value="ALT) Atterberg Limits Test">(ALT) Atterberg Limits Test</option>
+                <option value="(MCT) Moisture Content Test">(MCT) Moisture Content Test</option>
+                <option value="(CH&FHT) Constant Head and Falling Head Test">(CH&FHT) Constant Head and Falling Head Test</option>
+                <option value="(C/WT) Capillary/Wicking Test">(C/WT) Capillary/Wicking Test</option>
+                <option value="(GDM) Groundwater Depth Measurement">(GDM) Groundwater Depth Measurement</option>
+                <option value="(CT) Consolidation Test">(CT) Consolidation Test</option>
+                <option value="(SA) Sieve Analysis">(SA) Sieve Analysis</option>
+                <option value="(IST) Interface Shear Test">(IST) Interface Shear Test</option>
+                <option value="(VSTU) Vane Shear Test Undrained">(VSTU) Vane Shear Test Undrained</option>
+                <option value="(TCT) Triaxial Compression Test">(TCT) Triaxial Compression Test</option>
+                <option value="(UUT) Unconsolidated Undrained Test">(UUT) Unconsolidated Undrained Test</option>
+                <option value="(SLT) Surcharge Load Testing">(SLT) Surcharge Load Testing</option>
+                <option value="(CPT) Cone Penetration Test">(CPT) Cone Penetration Test</option>
+                <option value="(SPT) Standard Penetration Test">(SPT) Standard Penetration Test</option>
+            </select>
+            <input type="text" class="in-situ-value" name="in_situ_values[]" placeholder="Enter test result" disabled style="flex: 1;">
+            <button type="button" class="remove-test" style="display: none; background: #dc3545; padding: 0 10px;">✕</button>
+        </div>
+    </div>
+    <button type="button" id="add-in-situ-test" style="margin-top: 10px; background: #4682B4; padding: 8px 15px; font-size: 14px;">+ Add Another Test</button>
+</div>
+<script src="js/in-situ-entry-fields.js"></script>
 
-                    <label for="in_situ_conditions">In-Situ Conditions</label>
-                    <input type="text" id="in_situ_conditions" name="in_situ_conditions"  placeholder="Input Lab Result" required >
-        <!-- <label for="in_situ_conditions">In-Situ Conditions</label>
-        <select id="in_situ_conditions" name="in_situ_conditions" required>
-            <option value="">-- Select Condition --</option>
-            <option value="Poor soil compaction">Poor soil compaction</option>
-            <option value="Uneven soil compaction">Uneven soil compaction</option>
-            <option value="Slope greater than the Angle of Repose">Slope greater than the Angle of Repose</option>
-            <option value="High Unit Weight">High Unit Weight</option>
-            <option value="Low Density">Low Density</option>
-            <option value="High Cohesion">High Cohesion</option>
-            <option value="Low Cohesion">Low Cohesion</option>
-            <option value="High Void Ratio">High Void Ratio</option>
-            <option value="High Moisture Content">High Moisture Content</option>
-            <option value="High Plasticity Index">High Plasticity Index</option>
-            <option value="High Liquid Limit">High Liquid Limit</option>
-            <option value="High Capillarity">High Capillarity</option>
-            <option value="High Consolidation Potential">High Consolidation Potential</option>
-            <option value="High Compressibility/Compression Index">High Compressibility/Compression Index</option>
-            <option value="High Proportion of Fine-Grained Soil">High Proportion of Fine-Grained Soil</option>
-            <option value="Low Permeability">Low Permeability</option>
-            <option value="Low Shear Strength">Low Shear Strength</option>
-            <option value="Low Shear Strength for cohesive soil">Low Shear Strength for cohesive soil</option>
-            <option value="Low Angle of Internal Friction">Low Angle of Internal Friction</option>
-            <option value="Low Shear Resistance">Low Shear Resistance</option>
-            <option value="Low Cone Resistance">Low Cone Resistance</option>
-            <option value="Low Soil Resistance to Penetration">Low Soil Resistance to Penetration</option>
-            <option value="High Surcharge Load">High Surcharge Load</option>
-            <option value="High Water Table">High Water Table</option>
-        </select> -->
-    </div>  
+
     <div class="form-group">
-    <label for="structural_analysis">Structural Analysis</label>
-    <input type="text" id="structural_analysis" name="structural_analysis"  placeholder="Input Lab Result" required >
+    <label for="structural_analysiss">Structural Analysis</label>
+                <div style="display: flex; gap: 10px;">
+                    <select id="structural_analysis" name="structural_analysis" required style="flex: 1;">
+                        <option value="">-- Select Condition --</option>
+                        <option value="(D/U WT) Density/Unit Weight Test">(D/U WT) Density/Unit Weight Test</option>
+                        <option value="(CST) Compressive Strength Test">(CST) Compressive Strength Test</option>
+                       
+                    </select>
+                    <input type="text" id="structural_analysis_value" name="structural_analysis_value" placeholder="Enter test result" disabled style="flex: 1;">
+                </div>
+            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+    const structuralAnalysisGroup = document.querySelector('label[for="structural_analysiss"]').parentElement;
+    const container = document.createElement('div');
+    container.id = 'structural-analysis-container';
+    const label = structuralAnalysisGroup.querySelector('label');
+    const originalContent = structuralAnalysisGroup.querySelector('div[style="display: flex; gap: 10px;"]');
+    
+    const firstEntry = originalContent.cloneNode(true);
+    firstEntry.classList.add('structural-analysis-entry');
+    firstEntry.style.marginBottom = '10px';
+    
+    const removeButton = document.createElement('button');
+    removeButton.type = 'button';
+    removeButton.className = 'remove-structural-test';
+    removeButton.innerHTML = '✕';
+    removeButton.style.background = '#dc3545';
+    removeButton.style.padding = '0 10px';
+    removeButton.style.display = 'none';
+    firstEntry.appendChild(removeButton);
+    
+    structuralAnalysisGroup.removeChild(originalContent);
+    
+    structuralAnalysisGroup.appendChild(container);
+    container.appendChild(firstEntry);
+    
+    const addButton = document.createElement('button');
+    addButton.type = 'button';
+    addButton.id = 'add-structural-test';
+    addButton.innerHTML = '+ Add Another Structural Test';
+    addButton.style.marginTop = '10px';
+    addButton.style.background = '#4682B4';
+    addButton.style.padding = '8px 15px';
+    addButton.style.fontSize = '14px';
+    addButton.style.color = 'white';
+    addButton.style.border = 'none';
+    addButton.style.borderRadius = '5px';
+    addButton.style.cursor = 'pointer';
+    structuralAnalysisGroup.appendChild(addButton);
+    
+    const firstSelect = firstEntry.querySelector('select');
+    const firstInput = firstEntry.querySelector('input');
+    firstSelect.name = 'structural_analysis[]';
+    firstInput.name = 'structural_analysis_value[]';
+    
+    function updateDropdownOptions() {
+        const allSelects = document.querySelectorAll('.structural-analysis-entry select');
+        const selectedValues = Array.from(allSelects).map(select => select.value).filter(value => value !== '');
+
+        allSelects.forEach(select => {
+            const currentValue = select.value;
+
+            Array.from(select.options).forEach(option => {
+                option.disabled = false;
+            });
+
+            selectedValues.forEach(value => {
+                if (value !== currentValue && value !== '') {
+                    const option = select.querySelector(`option[value="${value}"]`);
+                    if (option) option.disabled = true;
+                }
+            });
+        });
+    }
+    
+    function initializeStructuralSelectListeners() {
+        document.querySelectorAll('.structural-analysis-entry select').forEach(select => {
+            if (!select.hasEventListener) {
+                select.addEventListener('change', function() {
+                    const inputField = this.parentElement.querySelector('input');
+                    
+                    if (this.value) {
+                        inputField.disabled = false;
+                        inputField.placeholder = `Enter ${this.value} result`;
+                        inputField.focus();
+                    } else {
+                        inputField.disabled = true;
+                        inputField.value = '';
+                        inputField.placeholder = 'Enter test result';
+                    }
+                    
+                    updateDropdownOptions();
+                });
+                select.hasEventListener = true;
+            }
+        });
+    }
+
+    function updateAddButtonVisibility() {
+        const testCount = document.querySelectorAll('.structural-analysis-entry').length;
+        
+        if (testCount >= 2) {
+            addButton.style.display = 'none';
+        } else {
+            addButton.style.display = 'block';
+        }
+
+        if (testCount > 1) {
+            document.querySelectorAll('.remove-structural-test').forEach(btn => {
+                btn.style.display = 'block';
+            });
+        } else {
+            document.querySelectorAll('.remove-structural-test').forEach(btn => {
+                btn.style.display = 'none';
+            });
+        }
+    }
+
+    initializeStructuralSelectListeners();
+    
+
+    addButton.addEventListener('click', function() {
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'structural-analysis-entry';
+        entryDiv.style.display = 'flex';
+        entryDiv.style.gap = '10px';
+        entryDiv.style.marginBottom = '10px';
+    
+        const newSelect = firstSelect.cloneNode(true);
+        newSelect.value = '';
+        
+        const newInput = document.createElement('input');
+        newInput.type = 'text';
+        newInput.name = 'structural_analysis_value[]';
+        newInput.placeholder = 'Enter test result';
+        newInput.disabled = true;
+        newInput.style.flex = '1';
+        
+        const removeBtn = document.createElement('button');
+        removeBtn.type = 'button';
+        removeBtn.className = 'remove-structural-test';
+        removeBtn.innerHTML = '✕';
+        removeBtn.style.background = '#dc3545';
+        removeBtn.style.padding = '0 10px';
+        removeBtn.style.color = 'white';
+        removeBtn.style.border = 'none';
+        removeBtn.style.borderRadius = '5px';
+        removeBtn.style.cursor = 'pointer';
+        
+        removeBtn.addEventListener('click', function() {
+            container.removeChild(entryDiv);
+            updateAddButtonVisibility();
+            updateDropdownOptions();
+        });
+        
+        entryDiv.appendChild(newSelect);
+        entryDiv.appendChild(newInput);
+        entryDiv.appendChild(removeBtn);
+        container.appendChild(entryDiv);
+        updateAddButtonVisibility();
+    
+        initializeStructuralSelectListeners();
+
+        updateDropdownOptions();
+    });
+
+    document.addEventListener('click', function(e) {
+        if (e.target && e.target.className === 'remove-structural-test') {
+            const entry = e.target.parentElement;
+            container.removeChild(entry);
+            updateAddButtonVisibility();
+            updateDropdownOptions();
+        }
+    });
+
+    updateAddButtonVisibility();
+});       
+            </script>
     </div>
 
             <h3>Visual Indicators</h3>
@@ -334,116 +767,459 @@
                 <div id="resultContent"></div>
             </div>
         </div>
+        <div id="formatRecommendations" class="modal">
+    <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h2>Recommendations</h2>
+        <div id="formatRecommendations"></div>
+    </div>
+</div>
 
         <script>
-           document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('assessmentForm');
-            const submitButton = document.getElementById('submitButton');
-            const resultContent = document.getElementById('resultContent');
+   document.addEventListener('DOMContentLoaded', function() {
+    // Get DOM elements
+    const form = document.getElementById('assessmentForm');
+    const submitButton = document.getElementById('submitButton');
+    const results = document.getElementById('results');
+    const resultContent = document.getElementById('resultContent');
 
-            form.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                submitButton.disabled = true;
-                submitButton.innerText = "Submitting...";
-                
-                try {
-                    const formData = new FormData(form);
-                    const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
-                        .map(checkbox => checkbox.value);
-                    const checkedMethods = Array.from(document.querySelectorAll('input[name="analysis[]"]:checked'))
-                        .map(checkbox => checkbox.value);
-                    checkedIndicators.forEach(indicator => {
-                        formData.append('test[]', indicator);
-                    });
-                    
-                    checkedMethods.forEach(method => {
-                        formData.append('analysis[]', method);
-                    });
+    // Add styles
+    const styles = `
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            overflow-y: auto;
+        }
 
-                    const response = await fetch('save-assessment.php', {
-                        method: 'POST',
-                        body: formData
-                    });
+        .modal-content {
+            background-color: #fff;
+            margin: 5% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 800px;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
 
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
+        .close-modal {
+            position: absolute;
+            right: 20px;
+            top: 10px;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
 
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                        document.getElementById('results').style.display = 'block';
-                        const addressParts = [
-                            formData.get('street_address'),
-                            document.querySelector('#barangay option:checked')?.text,
-                            document.querySelector('#city option:checked')?.text,
-                            document.querySelector('#province option:checked')?.text
-                        ].filter(Boolean);
-                        
-                        const addressString = addressParts.join(', ');
-                        resultContent.innerHTML = `
-                            <div class="success-message">Assessment saved successfully!</div>
-                            <div class="assessment-results">
-                                <h3>Assessment Summary</h3>
-                                
-                                <div class="summary-section">
-                                    <h4>Project Information</h4>
-                                    <p><strong>Structure Name:</strong> ${formData.get('Name') || 'Not specified'}</p>
-                                    <p><strong>Contract ID:</strong> ${formData.get('ContractID') || 'Not specified'}</p>
-                                    <p><strong>Date of Inspection:</strong> ${formData.get('Date') || 'Not specified'}</p>
-                                    <p><strong>Date of Construction:</strong> ${formData.get('ConstructionDate') || 'Not specified'}</p>
-                                    <p><strong>Location:</strong> ${addressString}</p>
-                                </div>
+        .close-modal:hover {
+            color: #333;
+        }
 
-                                <div class="summary-section">
-                                    <h4>Wall Details</h4>
-                                    <p><strong>Type of Design:</strong> ${formData.get('Type_of_Design') || 'Not specified'}</p>
-                                    <p><strong>Type of Material:</strong> ${formData.get('Type_of_Material') || 'Not specified'}</p>
-                                </div>
+        .recommendations-container {
+            margin-top: 20px;
+        }
 
-                                <div class="summary-section">
-                                    <h4>Analysis Results</h4>
-                                    <p><strong>Structural Analysis:</strong> ${formData.get('structural_analysis') || 'Not specified'}</p>
-                                    <p><strong>In-Situ Conditions:</strong> ${formData.get('in_situ_conditions') || 'Not specified'}</p>
-                                    <p><strong>Visual Indicators:</strong> ${checkedIndicators.join(', ') || 'None selected'}</p>
-                                    <p><strong>Analysis Methods:</strong> ${checkedMethods.join(', ') || 'None selected'}</p>
-                                </div>
+        .recommendation-section {
+            margin-bottom: 30px;
+        }
 
-                                ${result.results ? `
-                                    <div class="severity-indicator ${(result.results.severity_level || '').toLowerCase()}">
-                                        Severity Level: ${result.results.severity_level || 'Not specified'}
-                                    </div>
+        .priority-high,
+        .priority-medium,
+        .priority-low {
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+        }
 
-                                    <div class="summary-section">
-                                        <h4>Diagnosis</h4>
-                                        <p>${result.results.condition_diagnosis || 'No diagnosis available'}</p>
-                                    </div>
+        .priority-high {
+            background-color: #ffe6e6;
+            border-left: 4px solid #dc3545;
+        }
 
-                                    <div class="summary-section">
-                                        <h4>Recommendations</h4>
-                                        <p>${result.results.recommendations || 'No recommendations available'}</p>
-                                    </div>
-                                ` : ''}
-                            </div>
-                        `;
-                        document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-                    } else {
-                        throw new Error(result.error || 'Unknown error occurred');
-                    }
-                } catch (error) {
-                    console.error('Error:', error);
-                    resultContent.innerHTML = `
-                        <div class="error-message">
-                            Error saving assessment: ${error.message}
-                        </div>
-                    `;
-                } finally {
-                    submitButton.disabled = false;
-                    submitButton.innerText = "Submit Assessment";
+        .priority-medium {
+            background-color: #fff3e6;
+            border-left: 4px solid #fd7e14;
+        }
+
+        .priority-low {
+            background-color: #e6ffe6;
+            border-left: 4px solid #28a745;
+        }
+
+        .recommendation-section h3 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .recommendation-section h4 {
+            margin-bottom: 10px;
+        }
+
+        .recommendation-section ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .recommendation-section li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .recommendation-section li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #73877b;
+        }
+    `;
+
+    // Add styles to document
+    const styleSheet = document.createElement('style');
+    styleSheet.textContent = styles;
+    document.head.appendChild(styleSheet);
+
+    // Add modal HTML
+    const modalHTML = `
+        <div id="recommendationModal" class="modal">
+            <div class="modal-content">
+                <span class="close-modal">&times;</span>
+                <h2>Recommendations</h2>
+                <div id="recommendationContent"></div>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    // Helper function to determine failure types
+    function determineFailureTypes(indicators) {
+        const failureTypes = new Set();
+        
+        const failureMapping = {
+            'Horizontal or diagonal cracks at the base': ['Sliding'],
+            'Leaning of upper-height': ['Overturning'],
+            'Leaning of entire structure': ['Overturning'],
+            'Horizontal cracks at middle-height': ['Wall Bending'],
+            'Shear Cracks': ['Wall Fracture'],
+            'Vertical Cracks': ['Wall Fracture'],
+            'Bulging in middle height': ['Wall Bending'],
+            'Rotational movement of entire structure': ['Overturning'],
+            'Lateral displacement of entire structure': ['Sliding'],
+            'Settlement': ['Foundation Failure'],
+            'Soil Erosion': ['Base Failure'],
+            'Water Seepage marks': ['Drainage Failure']
+        };
+
+        indicators.forEach(indicator => {
+            if (failureMapping[indicator]) {
+                failureMapping[indicator].forEach(type => failureTypes.add(type));
+            }
+        });
+
+        return Array.from(failureTypes).slice(0, 2);
+    }
+
+    // Helper function to determine cause of failure
+    function determineCauseOfFailure(indicators) {
+        const causes = {
+            'Water Seepage marks': 'Poor Drainage',
+            'Soil Erosion': 'Base Material Failure',
+            'Settlement': 'Foundation Issues',
+            'Crumbling wall material': 'Material Degradation',
+            'Bulges': 'Excessive Earth Pressure',
+            'Water Pooling': 'Drainage Issues',
+            'Soft or Spongy': 'Poor Soil Conditions',
+            'Muddy Soil': 'Water Infiltration',
+            'Tension cracks': 'Structural Stress',
+            'Landslide': 'Slope Instability'
+        };
+
+        for (let indicator of indicators) {
+            if (causes[indicator]) {
+                return causes[indicator];
+            }
+        }
+
+        return 'Multiple Contributing Factors';
+    }
+
+    // Helper function to determine condition diagnosis
+    function determineConditionDiagnosis(indicators, failureTypes) {
+        const criticalIndicators = [
+            'Collapse of upper-height',
+            'Leaning of entire structure',
+            'Displacement of entire structure',
+            'Landslide'
+        ];
+
+        const hasCriticalIssues = indicators.some(indicator => 
+            criticalIndicators.includes(indicator));
+
+        if (hasCriticalIssues || failureTypes.length > 1) {
+            return {
+                severity: 'high',
+                diagnosis: 'Critical - Wall Replacement Needed',
+                explanation: 'Multiple critical issues detected. Immediate action required.'
+            };
+        }
+
+        if (indicators.length > 3) {
+            return {
+                severity: 'medium',
+                diagnosis: 'Significant Deterioration',
+                explanation: 'Multiple issues detected requiring prompt attention and remediation.'
+            };
+        }
+
+        if (indicators.length > 0) {
+            return {
+                severity: 'low',
+                diagnosis: 'Minor Issues Present',
+                explanation: 'Early signs of wear detected. Preventive maintenance recommended.'
+            };
+        }
+
+        return {
+            severity: 'none',
+            diagnosis: 'Good Condition',
+            explanation: 'No significant issues detected.'
+        };
+    }
+
+    // Function to generate recommendations
+    function generateRecommendations(failureTypes, causeOfFailure, indicators) {
+        const recommendations = {
+            remediationMethod: {
+                diagnosis1: [],
+                diagnosis2: [],
+                diagnosis3: [],
+            },
+            supportingLabTests: []
+        };
+
+        // Determine diagnosis based on severity
+        if (indicators.length === 0) {
+            recommendations.remediationMethod.diagnosis1.push('No need of Remediation');
+        } else if (indicators.includes('Collapse of upper-height') || 
+                   indicators.includes('Displacement of entire structure')) {
+            recommendations.remediationMethod.diagnosis3.push('Wall Replacement');
+        } else {
+            // Select appropriate remediation methods based on failure types
+            failureTypes.forEach(type => {
+                switch(type) {
+                    case 'Sliding':
+                        recommendations.remediationMethod.diagnosis2.push(...[
+                            'Soil nailing',
+                            'Anchoring',
+                            'Concrete jacket'
+                        ]);
+                        break;
+                    case 'Overturning':
+                        recommendations.remediationMethod.diagnosis2.push(...[
+                            'Buttressing',
+                            'Anchoring',
+                            'Tiebacks'
+                        ]);
+                        break;
+                    case 'Wall Bending':
+                        recommendations.remediationMethod.diagnosis2.push(...[
+                            'Steel Bracing',
+                            'Fiber-Reinforced Shotcrete',
+                            'Concrete jacket'
+                        ]);
+                        break;
+                    case 'Drainage Failure':
+                        recommendations.remediationMethod.diagnosis2.push(...[
+                            'Perforated pipes',
+                            'Geocomposite drains',
+                            'Geotextiles'
+                        ]);
+                        break;
                 }
             });
-        });
+        }
+
+        // Select supporting laboratory tests
+        switch(causeOfFailure) {
+            case 'Poor Drainage':
+                recommendations.supportingLabTests.push(
+                    '(CH&FHT) Constant Head and Falling Head Test',
+                    '(GDM) Groundwater Depth Measurement'
+                );
+                break;
+            case 'Base Material Failure':
+                recommendations.supportingLabTests.push(
+                    '(PCT) Proctor Compaction Test',
+                    '(DST) Direct Shear Test'
+                );
+                break;
+            case 'Foundation Issues':
+                recommendations.supportingLabTests.push(
+                    '(SPT) Standard Penetration Test',
+                    '(CPT) Cone Penetration Test'
+                );
+                break;
+        }
+
+        return recommendations;
+    }
+
+    // Function to show recommendations modal
+    function showRecommendations(failureTypes, causeOfFailure, indicators) {
+        const modal = document.getElementById('recommendationModal');
+        const content = document.getElementById('recommendationContent');
+        const recommendations = generateRecommendations(failureTypes, causeOfFailure, indicators);
+        
+        let html = '<div class="recommendations-container">';
+        
+        // Remediation Methods Section
+        html += '<div class="recommendation-section">';
+        html += '<h3>Remediation Methods</h3>';
+        
+        if (recommendations.remediationMethod.diagnosis1.length > 0) {
+            html += `
+                <div class="priority-low">
+                    <h4>No Remediation Required</h4>
+                    <p>${recommendations.remediationMethod.diagnosis1.join(', ')}</p>
+                </div>
+            `;
+        }
+        
+        if (recommendations.remediationMethod.diagnosis2.length > 0) {
+            html += `
+                <div class="priority-medium">
+                    <h4>Recommended Remediation Methods</h4>
+                    <ul>
+                        ${recommendations.remediationMethod.diagnosis2.map(method => `<li>${method}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        if (recommendations.remediationMethod.diagnosis3.length > 0) {
+            html += `
+                <div class="priority-high">
+                    <h4>Critical Action Required</h4>
+                    <p>${recommendations.remediationMethod.diagnosis3.join(', ')}</p>
+                </div>
+            `;
+        }
+        html += '</div>';
+        
+        // Supporting Lab Tests Section
+        if (recommendations.supportingLabTests.length > 0) {
+            html += `
+                <div class="recommendation-section">
+                    <h3>Recommended Laboratory Tests</h3>
+                    <ul>
+                        ${recommendations.supportingLabTests.map(test => `<li>${test}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        html += '</div>';
+        content.innerHTML = html;
+        modal.style.display = 'block';
+
+        // Close button functionality
+        const closeBtn = document.querySelector('.close-modal');
+        closeBtn.onclick = function() {
+            modal.style.display = 'none';
+        };
+
+        // Click outside to close
+        window.onclick = function(event) {
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        };
+    }
+
+    // Form submission handler
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        submitButton.disabled = true;
+        submitButton.innerText = "Processing...";
+        
+        try {
+            // Collect all checked indicators
+            const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
+                .map(checkbox => checkbox.value);
+            
+            // Analyze the data
+            const failureTypes = determineFailureTypes(checkedIndicators);
+            const causeOfFailure = determineCauseOfFailure(checkedIndicators);
+            const conditionDiagnosis = determineConditionDiagnosis(checkedIndicators, failureTypes);
+
+            // Show results section
+            results.style.display = 'block';
+            
+            // Generate results HTML
+            resultContent.innerHTML = `
+                <div class="assessment-results">
+                    <h3>Assessment Results</h3>
+                    
+                    <div class="summary-section">
+                        <h4>Failure Types Identified</h4>
+                        ${failureTypes.length > 0 
+                            ? `<p>${failureTypes.join(', ')}</p>`
+                            : '<p>No specific failure types identified</p>'
+                        }
+                    </div>
+
+                    <div class="summary-section">
+                        <h4>Primary Cause of Issues</h4>
+                        <p>${causeOfFailure}</p>
+                    </div>
+
+                    <div class="summary-section">
+                        <h4>Condition Assessment</h4>
+                        <p class="severity-indicator ${conditionDiagnosis.severity}">
+                            ${conditionDiagnosis.diagnosis}
+                        </p>
+                        <p>${conditionDiagnosis.explanation}</p>
+                    </div>
+
+                    <div class="summary-section">
+                        <h4>Detected Issues</h4>
+                        <ul>
+                            ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
+                        </ul>
+                    </div>
+
+                    <button onclick="showRecommendations(${JSON.stringify(failureTypes)}, '${causeOfFailure}', ${JSON.stringify(checkedIndicators)})" class="button">
+                        View Recommendations
+                    </button>
+                </div>
+            `;
+
+            // Scroll to results
+            results.scrollIntoView({ behavior: 'smooth' });
+
+        } catch (error) {
+            console.error('Error:', error);
+            resultContent.innerHTML = `
+                <div class="error-message">
+                    An error occurred while processing the assessment: ${error.message}
+                </div>
+            `;
+        } finally {
+            submitButton.disabled = false;
+            submitButton.innerText = "Submit Assessment";
+        }
+    });
+
+    // Make showRecommendations available globally
+    window.showRecommendations = showRecommendations;
+});
 
 
             const phase2 = document.getElementById('phase2');
