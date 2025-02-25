@@ -17,351 +17,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Retaining Wall Assessment Tool</title>
-       <Style>
-        * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', 'Roboto', sans-serif;
-    line-height: 1.6;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.header {
-    background-color: #73877b;
-    color: white;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-
-.user-info {
-    float: right;
-    font-size: 0.9em;
-}
-
-.section {
-    background: white;
-    padding: 25px;
-    margin-bottom: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-h1, h2, h3 {
-    color: #333;
-    margin-bottom: 20px;
-}
-
-.form-group {
-    margin-bottom: 20px;
-}
-
-label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 500;
-}
-
-input[type="text"],
-input[type="number"],
-textarea {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #e1e1e1;
-    border-radius: 5px;
-    font-size: 14px;
-}
-
-textarea {
-    height: 100px;
-    resize: vertical;
-}
-
-.checkbox-container {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 25px;
-    margin-bottom: 30px;
-}
-
-.category {
-    background: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    border: 1px solid #e1e1e1;
-}
-
-.category h3 {
-    color: #73877b;
-    font-size: 1.1em;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #73877b;
-}
-
-.checkbox-item {
-    position: relative;
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-}
-
-.checkbox-item:hover {
-    background: #e9ecef;
-}
-
-.checkbox-item input[type="checkbox"] {
-    margin-right: 12px;
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-}
-
-.checkbox-item input[type="checkbox"]:checked + label {
-    color: #73877b;
-    font-weight: 500;
-}
-
-.checkbox-item label {
-    cursor: pointer;
-    font-size: 0.95em;
-    margin-bottom: 0;
-    flex: 1;
-}
-
-
-.checkbox-item input[type="checkbox"] {
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: #fff;
-    border: 2px solid #73877b;
-    border-radius: 4px;
-    width: 20px;
-    height: 20px;
-    position: relative;
-    transition: all 0.2s ease;
-    
-}
-
-.checkbox-item input[type="checkbox"]:checked {
-    background-color: #73877b;
-}
-
-.checkbox-item input[type="checkbox"]:checked::after {
-    content: '✓';
-    position: absolute;
-    color: white;
-    font-size: 14px;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-}
-button {
-    background: #73877b;
-    color: white;
-    padding: 12px 25px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 16px;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    background: #5a6e62;
-    transform: translateY(-1px);
-}
-
-.results {
-    display: none;
-    margin-top: 30px;
-}
-
-.error-message {
-    color: #dc3545;
-    padding: 10px;
-    margin: 10px 0;
-    background: #ffe6e6;
-    border-radius: 5px;
-}
-
-.success-message {
-    color: #28a745;
-    padding: 10px;
-    margin: 10px 0;
-    background: #e6ffe6;
-    border-radius: 5px;
-}
-.location-fields {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.location-field {
-    margin-bottom: 15px;
-}
-
-.location-field label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.location-field input {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-
-    border-radius: 4px;
-}
-.address-section {
-    margin: 20px 0;
-    padding: 20px;
-    background-color: #fff;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.address-section h3 {
-    color: #73877b;
-    font-size: 1.1em;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
-    border-bottom: 2px solid #73877b;
-}
-
-.address-section .form-group {
-    margin-bottom: 15px;
-}
-
-.address-section select,
-.address-section input[type="text"] {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #e1e1e1;
-    border-radius: 5px;
-    font-size: 14px;
-    background: white;
-}
-
-.address-section select:disabled {
-    background-color: #f5f5f5;
-    cursor: not-allowed;
-}
-
-.address-section select:valid,
-.address-section input[type="text"]:valid {
-    border-color: #28a745;
-}
-.coordinates-group {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-}
-
-.coordinates-group input {
-    width: 100%;
-}
-
-input:valid {
-    border-color: #28a745;
-}
-select:valid {
-    border-color: #28a745;
-}
-select {
-    width: 100%;
-    padding: 10px;
-    border: 2px solid #e1e1e1;
-    color: #5e5e5e;
-    border-radius: 5px;
-    font-size: 14px;
-    background: white;
-}
-
-.assessment-results {
-    margin-top: 20px;
-    padding: 20px;
-    background: #f8f9fa;
-    border-radius: 8px;
-    border: 1px solid #e1e1e1;
-}
-
-.assessment-results h3 {
-    color: #333;
-    margin-bottom: 15px;
-}
-
-.assessment-results h4 {
-    color: #73877b;
-    margin: 15px 0 8px 0;
-}
-
-.severity-indicator {
-    display: inline-block;
-    padding: 8px 16px;
-    border-radius: 4px;
-    color: white;
-    font-weight: 500;
-    margin: 10px 0;
-}
-
-.severity-indicator.high {
-    background-color: #dc3545;
-}
-
-.severity-indicator.medium {
-    background-color: #ffc107;
-    color: #000;
-}
-
-.severity-indicator.low {
-    background-color: #28a745;
-}
-
-.assessment-results p {
-    margin: 8px 0;
-    line-height: 1.6;
-}
-
-
-        @media (max-width: 768px) {
-            .checkbox-group {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .checkbox-container {
-                grid-template-columns: 1fr;
-                gap: 15px;
-            }
-            
-            .category {
-                padding: 15px;
-            }
-        }
-       </Style>
+      <link rel="stylesheet" href="Css/Questionnaire.css">
             </head>
             <body>
         <?php
@@ -767,135 +423,287 @@ select {
                 <div id="resultContent"></div>
             </div>
         </div>
-        <div id="formatRecommendations" class="modal">
+        <div id="recommendationModal" class="modal">
     <div class="modal-content">
         <span class="close-modal">&times;</span>
         <h2>Recommendations</h2>
-        <div id="formatRecommendations"></div>
+        <div id="recommendationContent"></div>
     </div>
 </div>
+        <script>// This function needs to be properly exposed to the window object
+// Define generateRecommendations function globally, outside any event handlers
+function generateRecommendations(failureTypes, causeOfFailure, indicators) {
+    const recommendations = {
+        remediationMethod: {
+            diagnosis1: [],
+            diagnosis2: [],
+            diagnosis3: [],
+        },
+        supportingLabTests: []
+    };
 
-        <script>
-   document.addEventListener('DOMContentLoaded', function() {
+    // Determine diagnosis based on severity
+    if (indicators.length === 0) {
+        recommendations.remediationMethod.diagnosis1.push('No need of Remediation');
+    } else if (indicators.includes('Collapse of upper-height') || 
+               indicators.includes('Displacement of entire structure')) {
+        recommendations.remediationMethod.diagnosis3.push('Wall Replacement');
+    } else {
+        // Select appropriate remediation methods based on failure types
+        failureTypes.forEach(type => {
+            switch(type) {
+                case 'Sliding':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Soil nailing',
+                        'Anchoring',
+                        'Concrete jacket'
+                    ]);
+                    break;
+                case 'Overturning':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Buttressing',
+                        'Anchoring',
+                        'Tiebacks'
+                    ]);
+                    break;
+                case 'Wall Bending':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Steel Bracing',
+                        'Fiber-Reinforced Shotcrete',
+                        'Concrete jacket'
+                    ]);
+                    break;
+                case 'Drainage Failure':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Perforated pipes',
+                        'Geocomposite drains',
+                        'Geotextiles'
+                    ]);
+                    break;
+                case 'Wall Fracture':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Crack Injection',
+                        'Surface Sealing',
+                        'Reinforcement Addition'
+                    ]);
+                    break;
+                case 'Foundation Failure':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Underpinning',
+                        'Micropiles',
+                        'Foundation Reinforcement'
+                    ]);
+                    break;
+                case 'Base Failure':
+                    recommendations.remediationMethod.diagnosis2.push(...[
+                        'Base Reinforcement',
+                        'Soil Replacement',
+                        'Erosion Control Measures'
+                    ]);
+                    break;
+                default:
+                    recommendations.remediationMethod.diagnosis2.push('Professional structural assessment');
+                    break;
+            }
+        });
+    }
+
+    // Select supporting laboratory tests
+    switch(causeOfFailure) {
+        case 'Poor Drainage':
+            recommendations.supportingLabTests.push(
+                '(CH&FHT) Constant Head and Falling Head Test',
+                '(GDM) Groundwater Depth Measurement'
+            );
+            break;
+        case 'Base Material Failure':
+            recommendations.supportingLabTests.push(
+                '(PCT) Proctor Compaction Test',
+                '(DST) Direct Shear Test'
+            );
+            break;
+        case 'Foundation Issues':
+            recommendations.supportingLabTests.push(
+                '(SPT) Standard Penetration Test',
+                '(CPT) Cone Penetration Test'
+            );
+            break;
+        case 'Material Degradation':
+            recommendations.supportingLabTests.push(
+                'Material Strength Test',
+                'Chemical Analysis'
+            );
+            break;
+        case 'Excessive Earth Pressure':
+            recommendations.supportingLabTests.push(
+                'Lateral Earth Pressure Measurement',
+                '(DST) Direct Shear Test'
+            );
+            break;
+        case 'Drainage Issues':
+            recommendations.supportingLabTests.push(
+                'Permeability Test',
+                'Infiltration Test'
+            );
+            break;
+        case 'Poor Soil Conditions':
+            recommendations.supportingLabTests.push(
+                'Soil Classification Test',
+                '(ALT) Atterberg Limits Test'
+            );
+            break;
+        case 'Water Infiltration':
+            recommendations.supportingLabTests.push(
+                'Moisture Content Test',
+                'Hydraulic Conductivity Test'
+            );
+            break;
+        case 'Structural Stress':
+            recommendations.supportingLabTests.push(
+                'Stress Analysis',
+                'Material Strength Test'
+            );
+            break;
+        case 'Slope Instability':
+            recommendations.supportingLabTests.push(
+                'Slope Stability Analysis',
+                'Soil Shear Strength Test'
+            );
+            break;
+        default:
+            recommendations.supportingLabTests.push(
+                'Comprehensive Soil Testing Suite',
+                'Structural Integrity Assessment'
+            );
+            break;
+    }
+
+    return recommendations;
+}
+
+// This function needs to be properly exposed to the window object
+function showRecommendations(failureTypes, causeOfFailure, indicators) {
+    const modal = document.getElementById('recommendationModal');
+    const content = document.getElementById('recommendationContent');
+    
+    // Convert parameters if they're strings (which can happen when called from HTML)
+    if (typeof failureTypes === 'string') {
+        try {
+            failureTypes = JSON.parse(failureTypes);
+        } catch(e) {
+            failureTypes = [];
+        }
+    }
+    
+    if (typeof indicators === 'string') {
+        try {
+            indicators = JSON.parse(indicators);
+        } catch(e) {
+            indicators = [];
+        }
+    }
+    
+    let html = '<div class="recommendations-container">';
+    
+    // Check if there are no indicators (good condition)
+    if (indicators.length === 0) {
+        html += `
+            <div class="recommendation-section">
+                <h3>Maintenance Recommendations</h3>
+                <div class="priority-low">
+                    <h4>Good Condition - Routine Maintenance</h4>
+                    <ul>
+                        <li>Conduct regular visual inspections (every 6-12 months)</li>
+                        <li>Keep drainage systems clean and functional</li>
+                        <li>Monitor for any new cracks or movements</li>
+                        <li>Document wall condition with photographs</li>
+                        <li>Maintain proper surface water drainage</li>
+                    </ul>
+                </div>
+                <div class="recommendation-section">
+                    <h3>Preventive Monitoring</h3>
+                    <ul>
+                        <li>Annual structural inspection</li>
+                        <li>Drainage system effectiveness check</li>
+                        <li>Review of surrounding soil conditions</li>
+                    </ul>
+                </div>
+            </div>`;
+    } else {
+        // Generate recommendations based on the identified issues
+        const recommendations = generateRecommendations(failureTypes, causeOfFailure, indicators);
+        
+        // Remediation Methods Section
+        html += '<div class="recommendation-section">';
+        html += '<h3>Remediation Methods</h3>';
+        
+        if (recommendations.remediationMethod.diagnosis1.length > 0) {
+            html += `
+                <div class="priority-low">
+                    <h4>No Remediation Required</h4>
+                    <p>${recommendations.remediationMethod.diagnosis1.join(', ')}</p>
+                </div>
+            `;
+        }
+        
+        if (recommendations.remediationMethod.diagnosis2.length > 0) {
+            html += `
+                <div class="priority-medium">
+                    <h4>Recommended Remediation Methods</h4>
+                    <ul>
+                        ${recommendations.remediationMethod.diagnosis2.map(method => `<li>${method}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+        
+        if (recommendations.remediationMethod.diagnosis3.length > 0) {
+            html += `
+                <div class="priority-high">
+                    <h4>Critical Action Required</h4>
+                    <p>${recommendations.remediationMethod.diagnosis3.join(', ')}</p>
+                </div>
+            `;
+        }
+        
+        // Supporting Lab Tests Section
+        if (recommendations.supportingLabTests.length > 0) {
+            html += `
+                <div class="recommendation-section">
+                    <h3>Recommended Laboratory Tests</h3>
+                    <ul>
+                        ${recommendations.supportingLabTests.map(test => `<li>${test}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+        }
+    }
+    
+    html += '</div>';
+    content.innerHTML = html;
+    modal.style.display = 'block';
+
+    // Close button functionality
+    const closeBtn = document.querySelector('.close-modal');
+    closeBtn.onclick = function() {
+        modal.style.display = 'none';
+    };
+
+    // Click outside to close
+    window.onclick = function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    };
+}
+
+// Fixed version of the form submission handler that will correctly use the global functions
+document.addEventListener('DOMContentLoaded', function() {
     // Get DOM elements
     const form = document.getElementById('assessmentForm');
     const submitButton = document.getElementById('submitButton');
     const results = document.getElementById('results');
     const resultContent = document.getElementById('resultContent');
-
-    // Add styles
-    const styles = `
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0,0,0,0.5);
-            overflow-y: auto;
-        }
-
-        .modal-content {
-            background-color: #fff;
-            margin: 5% auto;
-            padding: 20px;
-            border-radius: 8px;
-            width: 90%;
-            max-width: 800px;
-            position: relative;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .close-modal {
-            position: absolute;
-            right: 20px;
-            top: 10px;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .close-modal:hover {
-            color: #333;
-        }
-
-        .recommendations-container {
-            margin-top: 20px;
-        }
-
-        .recommendation-section {
-            margin-bottom: 30px;
-        }
-
-        .priority-high,
-        .priority-medium,
-        .priority-low {
-            padding: 15px;
-            margin: 10px 0;
-            border-radius: 8px;
-        }
-
-        .priority-high {
-            background-color: #ffe6e6;
-            border-left: 4px solid #dc3545;
-        }
-
-        .priority-medium {
-            background-color: #fff3e6;
-            border-left: 4px solid #fd7e14;
-        }
-
-        .priority-low {
-            background-color: #e6ffe6;
-            border-left: 4px solid #28a745;
-        }
-
-        .recommendation-section h3 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .recommendation-section h4 {
-            margin-bottom: 10px;
-        }
-
-        .recommendation-section ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .recommendation-section li {
-            margin-bottom: 8px;
-            padding-left: 20px;
-            position: relative;
-        }
-
-        .recommendation-section li:before {
-            content: "•";
-            position: absolute;
-            left: 0;
-            color: #73877b;
-        }
-    `;
-
-    // Add styles to document
-    const styleSheet = document.createElement('style');
-    styleSheet.textContent = styles;
-    document.head.appendChild(styleSheet);
-
-    // Add modal HTML
-    const modalHTML = `
-        <div id="recommendationModal" class="modal">
-            <div class="modal-content">
-                <span class="close-modal">&times;</span>
-                <h2>Recommendations</h2>
-                <div id="recommendationContent"></div>
-            </div>
-        </div>
-    `;
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
 
     // Helper function to determine failure types
     function determineFailureTypes(indicators) {
@@ -992,236 +800,94 @@ select {
         };
     }
 
-    // Function to generate recommendations
-    function generateRecommendations(failureTypes, causeOfFailure, indicators) {
-        const recommendations = {
-            remediationMethod: {
-                diagnosis1: [],
-                diagnosis2: [],
-                diagnosis3: [],
-            },
-            supportingLabTests: []
-        };
-
-        // Determine diagnosis based on severity
-        if (indicators.length === 0) {
-            recommendations.remediationMethod.diagnosis1.push('No need of Remediation');
-        } else if (indicators.includes('Collapse of upper-height') || 
-                   indicators.includes('Displacement of entire structure')) {
-            recommendations.remediationMethod.diagnosis3.push('Wall Replacement');
-        } else {
-            // Select appropriate remediation methods based on failure types
-            failureTypes.forEach(type => {
-                switch(type) {
-                    case 'Sliding':
-                        recommendations.remediationMethod.diagnosis2.push(...[
-                            'Soil nailing',
-                            'Anchoring',
-                            'Concrete jacket'
-                        ]);
-                        break;
-                    case 'Overturning':
-                        recommendations.remediationMethod.diagnosis2.push(...[
-                            'Buttressing',
-                            'Anchoring',
-                            'Tiebacks'
-                        ]);
-                        break;
-                    case 'Wall Bending':
-                        recommendations.remediationMethod.diagnosis2.push(...[
-                            'Steel Bracing',
-                            'Fiber-Reinforced Shotcrete',
-                            'Concrete jacket'
-                        ]);
-                        break;
-                    case 'Drainage Failure':
-                        recommendations.remediationMethod.diagnosis2.push(...[
-                            'Perforated pipes',
-                            'Geocomposite drains',
-                            'Geotextiles'
-                        ]);
-                        break;
-                }
-            });
-        }
-
-        // Select supporting laboratory tests
-        switch(causeOfFailure) {
-            case 'Poor Drainage':
-                recommendations.supportingLabTests.push(
-                    '(CH&FHT) Constant Head and Falling Head Test',
-                    '(GDM) Groundwater Depth Measurement'
-                );
-                break;
-            case 'Base Material Failure':
-                recommendations.supportingLabTests.push(
-                    '(PCT) Proctor Compaction Test',
-                    '(DST) Direct Shear Test'
-                );
-                break;
-            case 'Foundation Issues':
-                recommendations.supportingLabTests.push(
-                    '(SPT) Standard Penetration Test',
-                    '(CPT) Cone Penetration Test'
-                );
-                break;
-        }
-
-        return recommendations;
-    }
-
-    // Function to show recommendations modal
-    function showRecommendations(failureTypes, causeOfFailure, indicators) {
-        const modal = document.getElementById('recommendationModal');
-        const content = document.getElementById('recommendationContent');
-        const recommendations = generateRecommendations(failureTypes, causeOfFailure, indicators);
-        
-        let html = '<div class="recommendations-container">';
-        
-        // Remediation Methods Section
-        html += '<div class="recommendation-section">';
-        html += '<h3>Remediation Methods</h3>';
-        
-        if (recommendations.remediationMethod.diagnosis1.length > 0) {
-            html += `
-                <div class="priority-low">
-                    <h4>No Remediation Required</h4>
-                    <p>${recommendations.remediationMethod.diagnosis1.join(', ')}</p>
-                </div>
-            `;
-        }
-        
-        if (recommendations.remediationMethod.diagnosis2.length > 0) {
-            html += `
-                <div class="priority-medium">
-                    <h4>Recommended Remediation Methods</h4>
-                    <ul>
-                        ${recommendations.remediationMethod.diagnosis2.map(method => `<li>${method}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
-        }
-        
-        if (recommendations.remediationMethod.diagnosis3.length > 0) {
-            html += `
-                <div class="priority-high">
-                    <h4>Critical Action Required</h4>
-                    <p>${recommendations.remediationMethod.diagnosis3.join(', ')}</p>
-                </div>
-            `;
-        }
-        html += '</div>';
-        
-        // Supporting Lab Tests Section
-        if (recommendations.supportingLabTests.length > 0) {
-            html += `
-                <div class="recommendation-section">
-                    <h3>Recommended Laboratory Tests</h3>
-                    <ul>
-                        ${recommendations.supportingLabTests.map(test => `<li>${test}</li>`).join('')}
-                    </ul>
-                </div>
-            `;
-        }
-        
-        html += '</div>';
-        content.innerHTML = html;
-        modal.style.display = 'block';
-
-        // Close button functionality
-        const closeBtn = document.querySelector('.close-modal');
-        closeBtn.onclick = function() {
-            modal.style.display = 'none';
-        };
-
-        // Click outside to close
-        window.onclick = function(event) {
-            if (event.target === modal) {
-                modal.style.display = 'none';
-            }
-        };
-    }
-
     // Form submission handler
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        submitButton.disabled = true;
-        submitButton.innerText = "Processing...";
-        
-        try {
-            // Collect all checked indicators
-            const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
-                .map(checkbox => checkbox.value);
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
             
-            // Analyze the data
-            const failureTypes = determineFailureTypes(checkedIndicators);
-            const causeOfFailure = determineCauseOfFailure(checkedIndicators);
-            const conditionDiagnosis = determineConditionDiagnosis(checkedIndicators, failureTypes);
-
-            // Show results section
-            results.style.display = 'block';
+            submitButton.disabled = true;
+            submitButton.innerText = "Processing...";
             
-            // Generate results HTML
-            resultContent.innerHTML = `
-                <div class="assessment-results">
-                    <h3>Assessment Results</h3>
-                    
-                    <div class="summary-section">
-                        <h4>Failure Types Identified</h4>
-                        ${failureTypes.length > 0 
-                            ? `<p>${failureTypes.join(', ')}</p>`
-                            : '<p>No specific failure types identified</p>'
-                        }
+            try {
+                // Collect all checked indicators
+                const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                // Analyze the data
+                const failureTypes = determineFailureTypes(checkedIndicators);
+                const causeOfFailure = determineCauseOfFailure(checkedIndicators);
+                const conditionDiagnosis = determineConditionDiagnosis(checkedIndicators, failureTypes);
+
+                // Show results section
+                results.style.display = 'block';
+                
+                // Generate results HTML with a properly formed button call
+                resultContent.innerHTML = `
+                    <div class="assessment-results">
+                        <h3>Assessment Results</h3>
+                        
+                        <div class="summary-section">
+                            <h4>Failure Types Identified</h4>
+                            ${failureTypes.length > 0 
+                                ? `<p>${failureTypes.join(', ')}</p>`
+                                : '<p>No specific failure types identified</p>'
+                            }
+                        </div>
+
+                        <div class="summary-section">
+                            <h4>Primary Cause of Issues</h4>
+                            <p>${causeOfFailure}</p>
+                        </div>
+
+                        <div class="summary-section">
+                            <h4>Condition Assessment</h4>
+                            <p class="severity-indicator ${conditionDiagnosis.severity}">
+                                ${conditionDiagnosis.diagnosis}
+                            </p>
+                            <p>${conditionDiagnosis.explanation}</p>
+                        </div>
+
+                        <div class="summary-section">
+                            <h4>Detected Issues</h4>
+                            <ul>
+                                ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
+                            </ul>
+                        </div>
+
+                        <button id="viewRecommendationsBtn" class="button">
+                            View Recommendations
+                        </button>
                     </div>
+                `;
+                
+                // Add click event listener directly to the button
+                document.getElementById('viewRecommendationsBtn').addEventListener('click', function() {
+                    // Use the global showRecommendations function
+                    showRecommendations(failureTypes, causeOfFailure, checkedIndicators);
+                });
 
-                    <div class="summary-section">
-                        <h4>Primary Cause of Issues</h4>
-                        <p>${causeOfFailure}</p>
+                // Scroll to results
+                results.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
+                console.error('Error:', error);
+                resultContent.innerHTML = `
+                    <div class="error-message">
+                        An error occurred while processing the assessment: ${error.message}
                     </div>
+                `;
+            } finally {
+                submitButton.disabled = false;
+                submitButton.innerText = "Submit Assessment";
+            }
+        });
+    }
 
-                    <div class="summary-section">
-                        <h4>Condition Assessment</h4>
-                        <p class="severity-indicator ${conditionDiagnosis.severity}">
-                            ${conditionDiagnosis.diagnosis}
-                        </p>
-                        <p>${conditionDiagnosis.explanation}</p>
-                    </div>
-
-                    <div class="summary-section">
-                        <h4>Detected Issues</h4>
-                        <ul>
-                            ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
-                        </ul>
-                    </div>
-
-                    <button onclick="showRecommendations(${JSON.stringify(failureTypes)}, '${causeOfFailure}', ${JSON.stringify(checkedIndicators)})" class="button">
-                        View Recommendations
-                    </button>
-                </div>
-            `;
-
-            // Scroll to results
-            results.scrollIntoView({ behavior: 'smooth' });
-
-        } catch (error) {
-            console.error('Error:', error);
-            resultContent.innerHTML = `
-                <div class="error-message">
-                    An error occurred while processing the assessment: ${error.message}
-                </div>
-            `;
-        } finally {
-            submitButton.disabled = false;
-            submitButton.innerText = "Submit Assessment";
-        }
-    });
-
-    // Make showRecommendations available globally
-    window.showRecommendations = showRecommendations;
+    // Expose the helper functions to the window object for potential use elsewhere
+    window.determineFailureTypes = determineFailureTypes;
+    window.determineCauseOfFailure = determineCauseOfFailure;
+    window.determineConditionDiagnosis = determineConditionDiagnosis;
 });
-
-
             const phase2 = document.getElementById('phase2');
             const assessmentText = document.getElementById('assessmentText');
             const conditionText = document.getElementById('conditionText');
