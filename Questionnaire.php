@@ -432,6 +432,7 @@
 </div>
         <script>// This function needs to be properly exposed to the window object
 // Define generateRecommendations function globally, outside any event handlers
+// Define generateRecommendations function globally, outside any event handlers
 function generateRecommendations(failureTypes, causeOfFailure, indicators) {
     const recommendations = {
         remediationMethod: {
@@ -801,114 +802,88 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Form submission handler
-    // Add this to your existing JavaScript file or in a script tag
-document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('assessmentForm');
-    const submitButton = document.getElementById('submitButton');
-    
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Disable submit button and show loading state
             submitButton.disabled = true;
             submitButton.innerText = "Processing...";
             
-            // Create FormData object
-            const formData = new FormData(form);
-            
-            // Send AJAX request
-            fetch('save-assessment.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // Show success message
-                    alert('Assessment saved successfully!');
-                    
-                    // Process the assessment as you're already doing
-                    // Collect all checked indicators
-                    const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
-                        .map(checkbox => checkbox.value);
-                    
-                    // Analyze the data
-                    const failureTypes = determineFailureTypes(checkedIndicators);
-                    const causeOfFailure = determineCauseOfFailure(checkedIndicators);
-                    const conditionDiagnosis = determineConditionDiagnosis(checkedIndicators, failureTypes);
-                    
-                    // Show results section (assuming these elements exist)
-                    const results = document.getElementById('results');
-                    const resultContent = document.getElementById('resultContent');
-                    
-                    if (results && resultContent) {
-                        results.style.display = 'block';
+            try {
+                // Collect all checked indicators
+                const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
+                    .map(checkbox => checkbox.value);
+                
+                // Analyze the data
+                const failureTypes = determineFailureTypes(checkedIndicators);
+                const causeOfFailure = determineCauseOfFailure(checkedIndicators);
+                const conditionDiagnosis = determineConditionDiagnosis(checkedIndicators, failureTypes);
+
+                // Show results section
+                results.style.display = 'block';
+                
+                // Generate results HTML with a properly formed button call
+                resultContent.innerHTML = `
+                    <div class="assessment-results">
+                        <h3>Assessment Results</h3>
                         
-                        // Generate results HTML
-                        resultContent.innerHTML = `
-                            <div class="assessment-results">
-                                <h3>Assessment Results</h3>
-                                
-                                <div class="summary-section">
-                                    <h4>Failure Types Identified</h4>
-                                    ${failureTypes.length > 0 
-                                        ? `<p>${failureTypes.join(', ')}</p>`
-                                        : '<p>No specific failure types identified</p>'
-                                    }
-                                </div>
+                        <div class="summary-section">
+                            <h4>Failure Types Identified</h4>
+                            ${failureTypes.length > 0 
+                                ? `<p>${failureTypes.join(', ')}</p>`
+                                : '<p>No specific failure types identified</p>'
+                            }
+                        </div>
 
-                                <div class="summary-section">
-                                    <h4>Primary Cause of Issues</h4>
-                                    <p>${causeOfFailure}</p>
-                                </div>
+                        <div class="summary-section">
+                            <h4>Primary Cause of Issues</h4>
+                            <p>${causeOfFailure}</p>
+                        </div>
 
-                                <div class="summary-section">
-                                    <h4>Condition Assessment</h4>
-                                    <p class="severity-indicator ${conditionDiagnosis.severity}">
-                                        ${conditionDiagnosis.diagnosis}
-                                    </p>
-                                    <p>${conditionDiagnosis.explanation}</p>
-                                </div>
+                        <div class="summary-section">
+                            <h4>Condition Assessment</h4>
+                            <p class="severity-indicator ${conditionDiagnosis.severity}">
+                                ${conditionDiagnosis.diagnosis}
+                            </p>
+                            <p>${conditionDiagnosis.explanation}</p>
+                        </div>
 
-                                <div class="summary-section">
-                                    <h4>Detected Issues</h4>
-                                    <ul>
-                                        ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
-                                    </ul>
-                                </div>
+                        <div class="summary-section">
+                            <h4>Detected Issues</h4>
+                            <ul>
+                                ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
+                            </ul>
+                        </div>
 
-                                <button id="viewRecommendationsBtn" class="button">
-                                    View Recommendations
-                                </button>
-                            </div>
-                        `;
-                        
-                        // Add click event listener to the recommendations button
-                        document.getElementById('viewRecommendationsBtn').addEventListener('click', function() {
-                            showRecommendations(failureTypes, causeOfFailure, checkedIndicators);
-                        });
+                        <button id="viewRecommendationsBtn" class="button">
+                            View Recommendations
+                        </button>
+                    </div>
+                `;
+                
+                // Add click event listener directly to the button
+                document.getElementById('viewRecommendationsBtn').addEventListener('click', function() {
+                    // Use the global showRecommendations function
+                    showRecommendations(failureTypes, causeOfFailure, checkedIndicators);
+                });
 
-                        // Scroll to results
-                        results.scrollIntoView({ behavior: 'smooth' });
-                    }
-                } else {
-                    // Show error message
-                    alert('Error: ' + data.message);
-                }
-            })
-            .catch(error => {
+                // Scroll to results
+                results.scrollIntoView({ behavior: 'smooth' });
+
+            } catch (error) {
                 console.error('Error:', error);
-                alert('Error submitting form. Please try again.');
-            })
-            .finally(() => {
-                // Re-enable submit button
+                resultContent.innerHTML = `
+                    <div class="error-message">
+                        An error occurred while processing the assessment: ${error.message}
+                    </div>
+                `;
+            } finally {
                 submitButton.disabled = false;
                 submitButton.innerText = "Submit Assessment";
-            });
+            }
         });
     }
-});
+
     // Expose the helper functions to the window object for potential use elsewhere
     window.determineFailureTypes = determineFailureTypes;
     window.determineCauseOfFailure = determineCauseOfFailure;
