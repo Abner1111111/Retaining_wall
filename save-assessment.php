@@ -1,238 +1,158 @@
 <?php
 session_start();
-require "db_configs.php";
+require "back/db_configs.php";
 
-// Check authentication
+// Check if the user is authenticated
 if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
-    http_response_code(401);
-    echo json_encode(['success' => false, 'error' => 'Not authenticated']);
+    header("Location: index.php");
     exit();
 }
 
-// Verify CSRF token
+// Validate form token to prevent CSRF attacks
 if (!isset($_POST['form_token']) || $_POST['form_token'] !== $_SESSION['form_token']) {
-    http_response_code(403);
-    echo json_encode(['success' => false, 'error' => 'Invalid form token']);
-    exit();
+    die("Invalid form submission.");
 }
 
-try {
-    $pdo->beginTransaction();
-
-    $stmt = $pdo->prepare("INSERT INTO assessments (user_id, contract_id, structure_name, inspection_date, 
-        construction_date, street_address, province_code, city_code, barangay_code) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
-    
-    $stmt->execute([
-        $_SESSION['user_id'],
-        $_POST['ContractID'],
-        $_POST['Name'] ?? null,
-        $_POST['Date'],
-        $_POST['ConstructionDate'],
-        $_POST['street_address'],
-        $_POST['province'],
-        $_POST['city'],
-        $_POST['barangay']
-    ]);
-
-    $assessment_id = $pdo->lastInsertId();
-
-    $stmt = $pdo->prepare("INSERT INTO wall_details (assessment_id, height, base_width, design_type, material_type) 
-        VALUES (?, ?, ?, ?, ?)");
-    
-    $stmt->execute([
-        $assessment_id,
-        $_POST['Height'],
-        $_POST['Base'],
-        $_POST['Type_of_Design'],
-        $_POST['Type_of_Material']
-    ]);
-
-    if (isset($_POST['in_situ_conditions']) && isset($_POST['in_situ_values'])) {
-        $stmt = $pdo->prepare("INSERT INTO in_situ_conditions (assessment_id, test_type, test_result) VALUES (?, ?, ?)");
+// Check if form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    try {
+        // Basic information
+        $user_id = $_SESSION['user_id'];
+        $date = $_POST['Date'] ?? null;
+        $construction_date = $_POST['ConstructionDate'] ?? null;
+        $name = $_POST['Name'] ?? null;
+        $contract_id = $_POST['ContractID'] ?? null;
+        $province = $_POST['province'] ?? null;
+        $city = $_POST['city'] ?? null;
+        $barangay = $_POST['barangay'] ?? null;
+        $street_address = $_POST['street_address'] ?? null;
         
-        foreach ($_POST['in_situ_conditions'] as $key => $test_type) {
-            if (!empty($test_type) && !empty($_POST['in_situ_values'][$key])) {
-                $stmt->execute([$assessment_id, $test_type, $_POST['in_situ_values'][$key]]);
+        // Structural dimensions
+        $height = $_POST['Height'] ?? null;
+        $base = $_POST['Base'] ?? null;
+        $type_of_design = $_POST['Type_of_Design'] ?? null;
+        $type_of_material = $_POST['Type_of_Material'] ?? null;
+        
+        // Visual indicators (checkbox values)
+        $visual_indicators = isset($_POST['test']) ? implode(',', $_POST['test']) : '';
+        
+        // Analysis methods (checkbox values)
+        $analysis_methods = isset($_POST['analysis']) ? implode(',', $_POST['analysis']) : '';
+        
+        // In-Situ Conditions (multiple values)
+        $in_situ_conditions = isset($_POST['in_situ_conditions']) ? $_POST['in_situ_conditions'] : [];
+        $in_situ_values = isset($_POST['in_situ_values']) ? $_POST['in_situ_values'] : [];
+        $in_situ_data = [];
+        
+        for ($i = 0; $i < count($in_situ_conditions); $i++) {
+            if (!empty($in_situ_conditions[$i]) && isset($in_situ_values[$i])) {
+                $in_situ_data[] = [
+                    'condition' => $in_situ_conditions[$i],
+                    'value' => $in_situ_values[$i]
+                ];
             }
         }
-    }
-
-    // Insert structural analysis
-    if (isset($_POST['structural_analysis']) && isset($_POST['structural_analysis_value'])) {
-        $stmt = $pdo->prepare("INSERT INTO structural_analysis (assessment_id, test_type, test_result) VALUES (?, ?, ?)");
         
-        foreach ($_POST['structural_analysis'] as $key => $test_type) {
-            if (!empty($test_type) && !empty($_POST['structural_analysis_value'][$key])) {
-                $stmt->execute([$assessment_id, $test_type, $_POST['structural_analysis_value'][$key]]);
+        // Structural Analysis (multiple values)
+        $structural_analysis = isset($_POST['structural_analysis']) ? $_POST['structural_analysis'] : [];
+        $structural_analysis_values = isset($_POST['structural_analysis_value']) ? $_POST['structural_analysis_value'] : [];
+        $structural_data = [];
+        
+        for ($i = 0; $i < count($structural_analysis); $i++) {
+            if (!empty($structural_analysis[$i]) && isset($structural_analysis_values[$i])) {
+                $structural_data[] = [
+                    'analysis' => $structural_analysis[$i],
+                    'value' => $structural_analysis_values[$i]
+                ];
             }
         }
-    }
-
-    // Insert visual indicators
-    if (isset($_POST['test'])) {
-        $stmt = $pdo->prepare("INSERT INTO visual_indicators (assessment_id, indicator_category, indicator_name) 
-            VALUES (?, ?, ?)");
         
-        foreach ($_POST['test'] as $indicator) {
-            // Determine category based on indicator
-            $category = determineIndicatorCategory($indicator);
-            $stmt->execute([$assessment_id, $category, $indicator]);
-        }
-    }
-
-    // Insert analysis methods
-    if (isset($_POST['analysis'])) {
-        $stmt = $pdo->prepare("INSERT INTO analysis_methods (assessment_id, method_name) VALUES (?, ?)");
+        // Begin transaction
+        $pdo->beginTransaction();
         
-        foreach ($_POST['analysis'] as $method) {
-            $stmt->execute([$assessment_id, $method]);
+        // Insert the main assessment record
+        $stmt = $pdo->prepare("
+            INSERT INTO assessments (
+                user_id, date, construction_date, structure_name, contract_id, province, 
+                city, barangay, street_address, height, base, type_of_design, 
+                type_of_material, visual_indicators, analysis_methods, created_at
+            ) VALUES (
+                ?, ?, ?, ?, ?, ?, 
+                ?, ?, ?, ?, ?, ?, 
+                ?, ?, ?, NOW()
+            )
+        ");
+        
+        $stmt->execute([
+            $user_id, $date, $construction_date, $name, $contract_id, $province,
+            $city, $barangay, $street_address, $height, $base, $type_of_design,
+            $type_of_material, $visual_indicators, $analysis_methods
+        ]);
+        
+        $assessment_id = $pdo->lastInsertId();
+        
+        // Insert in-situ conditions
+        if (!empty($in_situ_data)) {
+            $stmt = $pdo->prepare("
+                INSERT INTO in_situ_conditions (
+                    assessment_id, condition_type, test_value
+                ) VALUES (?, ?, ?)
+            ");
+            
+            foreach ($in_situ_data as $data) {
+                $stmt->execute([
+                    $assessment_id, 
+                    $data['condition'], 
+                    $data['value']
+                ]);
+            }
         }
+        
+        // Insert structural analysis data
+        if (!empty($structural_data)) {
+            $stmt = $pdo->prepare("
+                INSERT INTO structural_analysis (
+                    assessment_id, analysis_type, test_value
+                ) VALUES (?, ?, ?)
+            ");
+            
+            foreach ($structural_data as $data) {
+                $stmt->execute([
+                    $assessment_id, 
+                    $data['analysis'], 
+                    $data['value']
+                ]);
+            }
+        }
+        
+        // Commit transaction
+        $pdo->commit();
+        
+        // Generate a new form token for the next submission
+        $_SESSION['form_token'] = bin2hex(random_bytes(32));
+        
+        // Return success response
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'success', 'message' => 'Assessment saved successfully', 'assessment_id' => $assessment_id]);
+        exit;
+        
+    } catch (PDOException $e) {
+        // Roll back transaction in case of error
+        $pdo->rollBack();
+        
+        // Return error response
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'error', 'message' => 'Database error: ' . $e->getMessage()]);
+        exit;
+    } catch (Exception $e) {
+        // Return error response for any other exceptions
+        header('Content-Type: application/json');
+        echo json_encode(['status' => 'error', 'message' => 'Error: ' . $e->getMessage()]);
+        exit;
     }
-
-    // Calculate and insert assessment results
-    $severity_level = calculateSeverityLevel($_POST);
-    $diagnosis = generateDiagnosis($_POST);
-    $recommendations = generateRecommendations($_POST);
-
-    $stmt = $pdo->prepare("INSERT INTO assessment_results (assessment_id, severity_level, condition_diagnosis, 
-        recommendations) VALUES (?, ?, ?, ?)");
-    
-    $stmt->execute([
-        $assessment_id,
-        $severity_level,
-        $diagnosis,
-        $recommendations
-    ]);
-
-    $pdo->commit();
-
-    // Return success response with results
-    echo json_encode([
-        'success' => true,
-        'results' => [
-            'severity_level' => $severity_level,
-            'condition_diagnosis' => $diagnosis,
-            'recommendations' => $recommendations
-        ]
-    ]);
-
-} catch (Exception $e) {
-    $pdo->rollBack();
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+} else {
+    // Not a POST request
+    header('Content-Type: application/json');
+    echo json_encode(['status' => 'error', 'message' => 'Invalid request method']);
+    exit;
 }
-
-// Helper function to determine indicator category
-function determineIndicatorCategory($indicator) {
-    $categories = [
-        'Front Face' => ['Horizontal or diagonal cracks', 'Shear Cracks', 'Vertical Cracks', 'Water Seepage'],
-        'Wall Displacements' => ['Leaning', 'Rotational movement', 'Lateral displacement'],
-        'Wall Base' => ['Misalignment', 'Settlement', 'Soil Erosion'],
-        'Foundation Soil' => ['Muddy Soil', 'Water Pooling', 'Soil heave'],
-        'Backfill Soil' => ['Soil creep', 'Tension cracks', 'Landslide'],
-        'Nearby Structure' => ['Natural loads', 'Vibrations', 'Overloading']
-    ];
-
-    foreach ($categories as $category => $indicators) {
-        foreach ($indicators as $ind) {
-            if (stripos($indicator, $ind) !== false) {
-                return $category;
-            }
-        }
-    }
-    
-    return 'Other';
-}
-
-// Helper function to calculate severity level
-function calculateSeverityLevel($data) {
-    $severity_score = 0;
-    
-    // Check visual indicators
-    if (isset($data['test'])) {
-        $critical_indicators = ['Collapse', 'Landslide', 'Rotational movement'];
-        $major_indicators = ['Leaning', 'Bulging', 'Settlement'];
-        
-        foreach ($data['test'] as $indicator) {
-            if (in_array($indicator, $critical_indicators)) {
-                $severity_score += 3;
-            } elseif (in_array($indicator, $major_indicators)) {
-                $severity_score += 2;
-            } else {
-                $severity_score += 1;
-            }
-        }
-    }
-    
-    // Return severity level based on score
-    if ($severity_score >= 5) {
-        return 'High';
-    } elseif ($severity_score >= 3) {
-        return 'Medium';
-    } else {
-        return 'Low';
-    }
-}
-
-// Helper function to generate diagnosis
-function generateDiagnosis($data) {
-    $diagnosis = [];
-    
-    if (isset($data['test'])) {
-        // Group issues by category
-        $structural_issues = array_filter($data['test'], function($indicator) {
-            return stripos($indicator, 'crack') !== false || 
-                   stripos($indicator, 'bulging') !== false ||
-                   stripos($indicator, 'leaning') !== false;
-        });
-        
-        $drainage_issues = array_filter($data['test'], function($indicator) {
-            return stripos($indicator, 'water') !== false || 
-                   stripos($indicator, 'seepage') !== false ||
-                   stripos($indicator, 'erosion') !== false;
-        });
-        
-        // Build diagnosis
-        if ($structural_issues) {
-            $diagnosis[] = "Structural integrity concerns detected: " . implode(", ", $structural_issues);
-        }
-        
-        if ($drainage_issues) {
-            $diagnosis[] = "Drainage issues identified: " . implode(", ", $drainage_issues);
-        }
-    }
-    
-    return implode(" ", $diagnosis) ?: "No significant issues detected.";
-}
-
-// Helper function to generate recommendations
-function generateRecommendations($data) {
-    $recommendations = [];
-    
-    if (isset($data['test'])) {
-        // Add recommendations based on issues
-        foreach ($data['test'] as $indicator) {
-            if (stripos($indicator, 'crack') !== false) {
-                $recommendations[] = "Conduct detailed structural analysis and consider crack repair or reinforcement.";
-            }
-            if (stripos($indicator, 'water') !== false || stripos($indicator, 'seepage') !== false) {
-                $recommendations[] = "Improve drainage system and waterproofing measures.";
-            }
-            if (stripos($indicator, 'leaning') !== false || stripos($indicator, 'bulging') !== false) {
-                $recommendations[] = "Immediate structural evaluation required. Consider stabilization measures.";
-            }
-            if (stripos($indicator, 'erosion') !== false) {
-                $recommendations[] = "Implement erosion control measures and improve surface drainage.";
-            }
-        }
-    }
-    
-    // Add general recommendations if no specific issues
-    if (empty($recommendations)) {
-        $recommendations[] = "Regular monitoring and maintenance recommended.";
-    }
-    
-    return implode(" ", array_unique($recommendations));
-}
-?>
