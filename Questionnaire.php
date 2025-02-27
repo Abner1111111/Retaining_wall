@@ -430,8 +430,8 @@
         <div id="recommendationContent"></div>
     </div>
 </div>
-        <script>// This function needs to be properly exposed to the window object
-// Define generateRecommendations function globally, outside any event handlers
+    <script>
+        // This function needs to be properly exposed to the window object
 // Define generateRecommendations function globally, outside any event handlers
 function generateRecommendations(failureTypes, causeOfFailure, indicators) {
     const recommendations = {
@@ -698,110 +698,156 @@ function showRecommendations(failureTypes, causeOfFailure, indicators) {
     };
 }
 
-// Fixed version of the form submission handler that will correctly use the global functions
+// Helper function to determine failure types
+function determineFailureTypes(indicators) {
+    const failureTypes = new Set();
+    
+    const failureMapping = {
+        'Horizontal or diagonal cracks at the base': ['Sliding'],
+        'Leaning of upper-height': ['Overturning'],
+        'Leaning of entire structure': ['Overturning'],
+        'Horizontal cracks at middle-height': ['Wall Bending'],
+        'Shear Cracks': ['Wall Fracture'],
+        'Vertical Cracks': ['Wall Fracture'],
+        'Bulging in middle height': ['Wall Bending'],
+        'Rotational movement of entire structure': ['Overturning'],
+        'Lateral displacement of entire structure': ['Sliding'],
+        'Settlement': ['Foundation Failure'],
+        'Soil Erosion': ['Base Failure'],
+        'Water Seepage marks': ['Drainage Failure']
+    };
+
+    indicators.forEach(indicator => {
+        if (failureMapping[indicator]) {
+            failureMapping[indicator].forEach(type => failureTypes.add(type));
+        }
+    });
+
+    return Array.from(failureTypes).slice(0, 2);
+}
+
+// Helper function to determine cause of failure
+function determineCauseOfFailure(indicators) {
+    const causes = {
+        'Water Seepage marks': 'Poor Drainage',
+        'Soil Erosion': 'Base Material Failure',
+        'Settlement': 'Foundation Issues',
+        'Crumbling wall material': 'Material Degradation',
+        'Bulges': 'Excessive Earth Pressure',
+        'Water Pooling': 'Drainage Issues',
+        'Soft or Spongy': 'Poor Soil Conditions',
+        'Muddy Soil': 'Water Infiltration',
+        'Tension cracks': 'Structural Stress',
+        'Landslide': 'Slope Instability'
+    };
+
+    for (let indicator of indicators) {
+        if (causes[indicator]) {
+            return causes[indicator];
+        }
+    }
+
+    return 'Multiple Contributing Factors';
+}
+
+// Helper function to determine condition diagnosis
+function determineConditionDiagnosis(indicators, failureTypes) {
+    const criticalIndicators = [
+        'Collapse of upper-height',
+        'Leaning of entire structure',
+        'Displacement of entire structure',
+        'Landslide'
+    ];
+
+    const hasCriticalIssues = indicators.some(indicator => 
+        criticalIndicators.includes(indicator));
+
+    if (hasCriticalIssues || failureTypes.length > 1) {
+        return {
+            severity: 'high',
+            diagnosis: 'Critical - Wall Replacement Needed',
+            explanation: 'Multiple critical issues detected. Immediate action required.'
+        };
+    }
+
+    if (indicators.length > 3) {
+        return {
+            severity: 'medium',
+            diagnosis: 'Significant Deterioration',
+            explanation: 'Multiple issues detected requiring prompt attention and remediation.'
+        };
+    }
+
+    if (indicators.length > 0) {
+        return {
+            severity: 'low',
+            diagnosis: 'Minor Issues Present',
+            explanation: 'Early signs of wear detected. Preventive maintenance recommended.'
+        };
+    }
+
+    return {
+        severity: 'none',
+        diagnosis: 'Good Condition',
+        explanation: 'No significant issues detected.'
+    };
+}
+
+function displayResults(checkedIndicators, failureTypes, causeOfFailure, conditionDiagnosis) {
+    const results = document.getElementById('results');
+    const resultContent = document.getElementById('resultContent');
+    
+    results.style.display = 'block';
+    
+    resultContent.innerHTML = `
+        <div class="assessment-results">
+            <h3>Assessment Results</h3>
+            
+            <div class="summary-section">
+                <h4>Failure Types Identified</h4>
+                ${failureTypes.length > 0 
+                    ? `<p>${failureTypes.join(', ')}</p>`
+                    : '<p>No specific failure types identified</p>'
+                }
+            </div>
+
+            <div class="summary-section">
+                <h4>Primary Cause of Issues</h4>
+                <p>${causeOfFailure}</p>
+            </div>
+
+            <div class="summary-section">
+                <h4>Condition Assessment</h4>
+                <p class="severity-indicator ${conditionDiagnosis.severity}">
+                    ${conditionDiagnosis.diagnosis}
+                </p>
+                <p>${conditionDiagnosis.explanation}</p>
+            </div>
+
+            <div class="summary-section">
+                <h4>Detected Issues</h4>
+                <ul>
+                    ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
+                </ul>
+            </div>
+
+            <button id="viewRecommendationsBtn" class="button">
+                View Recommendations
+            </button>
+        </div>
+    `;
+    document.getElementById('viewRecommendationsBtn').addEventListener('click', function() {
+        showRecommendations(failureTypes, causeOfFailure, checkedIndicators);
+    });
+
+    results.scrollIntoView({ behavior: 'smooth' });
+}
 document.addEventListener('DOMContentLoaded', function() {
-    // Get DOM elements
     const form = document.getElementById('assessmentForm');
     const submitButton = document.getElementById('submitButton');
     const results = document.getElementById('results');
     const resultContent = document.getElementById('resultContent');
 
-    // Helper function to determine failure types
-    function determineFailureTypes(indicators) {
-        const failureTypes = new Set();
-        
-        const failureMapping = {
-            'Horizontal or diagonal cracks at the base': ['Sliding'],
-            'Leaning of upper-height': ['Overturning'],
-            'Leaning of entire structure': ['Overturning'],
-            'Horizontal cracks at middle-height': ['Wall Bending'],
-            'Shear Cracks': ['Wall Fracture'],
-            'Vertical Cracks': ['Wall Fracture'],
-            'Bulging in middle height': ['Wall Bending'],
-            'Rotational movement of entire structure': ['Overturning'],
-            'Lateral displacement of entire structure': ['Sliding'],
-            'Settlement': ['Foundation Failure'],
-            'Soil Erosion': ['Base Failure'],
-            'Water Seepage marks': ['Drainage Failure']
-        };
-
-        indicators.forEach(indicator => {
-            if (failureMapping[indicator]) {
-                failureMapping[indicator].forEach(type => failureTypes.add(type));
-            }
-        });
-
-        return Array.from(failureTypes).slice(0, 2);
-    }
-
-    // Helper function to determine cause of failure
-    function determineCauseOfFailure(indicators) {
-        const causes = {
-            'Water Seepage marks': 'Poor Drainage',
-            'Soil Erosion': 'Base Material Failure',
-            'Settlement': 'Foundation Issues',
-            'Crumbling wall material': 'Material Degradation',
-            'Bulges': 'Excessive Earth Pressure',
-            'Water Pooling': 'Drainage Issues',
-            'Soft or Spongy': 'Poor Soil Conditions',
-            'Muddy Soil': 'Water Infiltration',
-            'Tension cracks': 'Structural Stress',
-            'Landslide': 'Slope Instability'
-        };
-
-        for (let indicator of indicators) {
-            if (causes[indicator]) {
-                return causes[indicator];
-            }
-        }
-
-        return 'Multiple Contributing Factors';
-    }
-
-    // Helper function to determine condition diagnosis
-    function determineConditionDiagnosis(indicators, failureTypes) {
-        const criticalIndicators = [
-            'Collapse of upper-height',
-            'Leaning of entire structure',
-            'Displacement of entire structure',
-            'Landslide'
-        ];
-
-        const hasCriticalIssues = indicators.some(indicator => 
-            criticalIndicators.includes(indicator));
-
-        if (hasCriticalIssues || failureTypes.length > 1) {
-            return {
-                severity: 'high',
-                diagnosis: 'Critical - Wall Replacement Needed',
-                explanation: 'Multiple critical issues detected. Immediate action required.'
-            };
-        }
-
-        if (indicators.length > 3) {
-            return {
-                severity: 'medium',
-                diagnosis: 'Significant Deterioration',
-                explanation: 'Multiple issues detected requiring prompt attention and remediation.'
-            };
-        }
-
-        if (indicators.length > 0) {
-            return {
-                severity: 'low',
-                diagnosis: 'Minor Issues Present',
-                explanation: 'Early signs of wear detected. Preventive maintenance recommended.'
-            };
-        }
-
-        return {
-            severity: 'none',
-            diagnosis: 'Good Condition',
-            explanation: 'No significant issues detected.'
-        };
-    }
-
-    // Form submission handler
     if (form) {
         form.addEventListener('submit', function(e) {
             e.preventDefault();
@@ -810,66 +856,60 @@ document.addEventListener('DOMContentLoaded', function() {
             submitButton.innerText = "Processing...";
             
             try {
-                // Collect all checked indicators
                 const checkedIndicators = Array.from(document.querySelectorAll('input[name="test[]"]:checked'))
                     .map(checkbox => checkbox.value);
                 
-                // Analyze the data
                 const failureTypes = determineFailureTypes(checkedIndicators);
                 const causeOfFailure = determineCauseOfFailure(checkedIndicators);
                 const conditionDiagnosis = determineConditionDiagnosis(checkedIndicators, failureTypes);
-
-                // Show results section
-                results.style.display = 'block';
+                const formData = new FormData(form);
+                formData.append('failureTypes', JSON.stringify(failureTypes));
+                formData.append('causeOfFailure', causeOfFailure);
+                formData.append('conditionDiagnosis', conditionDiagnosis.diagnosis);
+                formData.append('severity', conditionDiagnosis.severity);
+                formData.append('explanation', conditionDiagnosis.explanation);
                 
-                // Generate results HTML with a properly formed button call
-                resultContent.innerHTML = `
-                    <div class="assessment-results">
-                        <h3>Assessment Results</h3>
+                // Send the data via AJAX to save in database
+                fetch('save-assessment.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Show success message
+                    if (data.status === 'success') {
+                        // Display results
+                        displayResults(checkedIndicators, failureTypes, causeOfFailure, conditionDiagnosis);
                         
-                        <div class="summary-section">
-                            <h4>Failure Types Identified</h4>
-                            ${failureTypes.length > 0 
-                                ? `<p>${failureTypes.join(', ')}</p>`
-                                : '<p>No specific failure types identified</p>'
+                        // Show a success message
+                        const successAlert = document.createElement('div');
+                        successAlert.className = 'success-alert';
+                        successAlert.textContent = 'Assessment saved successfully!';
+                        form.prepend(successAlert);
+                        
+                        // Remove success message after 5 seconds
+                        setTimeout(() => {
+                            if (successAlert.parentNode) {
+                                successAlert.parentNode.removeChild(successAlert);
                             }
+                        }, 5000);
+                    } else {
+                        throw new Error(data.message || 'Failed to save assessment');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    resultContent.innerHTML = `
+                        <div class="error-message">
+                            An error occurred while saving the assessment: ${error.message}
                         </div>
-
-                        <div class="summary-section">
-                            <h4>Primary Cause of Issues</h4>
-                            <p>${causeOfFailure}</p>
-                        </div>
-
-                        <div class="summary-section">
-                            <h4>Condition Assessment</h4>
-                            <p class="severity-indicator ${conditionDiagnosis.severity}">
-                                ${conditionDiagnosis.diagnosis}
-                            </p>
-                            <p>${conditionDiagnosis.explanation}</p>
-                        </div>
-
-                        <div class="summary-section">
-                            <h4>Detected Issues</h4>
-                            <ul>
-                                ${checkedIndicators.map(indicator => `<li>${indicator}</li>`).join('')}
-                            </ul>
-                        </div>
-
-                        <button id="viewRecommendationsBtn" class="button">
-                            View Recommendations
-                        </button>
-                    </div>
-                `;
-                
-                // Add click event listener directly to the button
-                document.getElementById('viewRecommendationsBtn').addEventListener('click', function() {
-                    // Use the global showRecommendations function
-                    showRecommendations(failureTypes, causeOfFailure, checkedIndicators);
+                    `;
+                })
+                .finally(() => {
+                    submitButton.disabled = false;
+                    submitButton.innerText = "Submit Assessment";
                 });
-
-                // Scroll to results
-                results.scrollIntoView({ behavior: 'smooth' });
-
+                
             } catch (error) {
                 console.error('Error:', error);
                 resultContent.innerHTML = `
@@ -877,89 +917,63 @@ document.addEventListener('DOMContentLoaded', function() {
                         An error occurred while processing the assessment: ${error.message}
                     </div>
                 `;
-            } finally {
                 submitButton.disabled = false;
                 submitButton.innerText = "Submit Assessment";
             }
         });
     }
 
-    // Expose the helper functions to the window object for potential use elsewhere
+    // Initialize Select2 if it exists
+    if (window.jQuery && $.fn.select2 && $('#wall_material').length) {
+        $('#wall_material').select2({
+            placeholder: "-- Select Material --",
+            allowClear: true
+        });
+
+        const labTests = {
+            "Poor soil compaction": "Proctor Compaction Test (PCT)",
+            "Uneven soil compaction": "Field Density Test (FDT)",
+            "Slope greater than the Angle of Repose": "Fixed Funnel Method (FFM), Direct Measurement (DM)",
+            "High Unit Weight": "Density/Unit Weight Test (D/U WT)",
+            "Low Density": "Density/Unit Weight Test (D/U WT)",
+            "High Cohesion": "Direct Shear Test (DST)",
+            "Low Cohesion": "Direct Shear Test (DST)",
+            "High Void Ratio": "Consolidation Test (CT)",
+            "High Moisture Content": "Moisture Content Test (MCT)",
+            "High Plasticity Index": "Atterberg Limits Test (ALT)",
+            "High Liquid Limit": "Atterberg Limits Test (ALT)",
+            "High Capillarity": "Capillary/Wicking Test (C/WT)",
+            "High Consolidation Potential": "Consolidation Test (CT)",
+            "High Compressibility/Compression Index": "Consolidation Test (CT)",
+            "High Proportion of Fined-Grained Soil": "Sieve Analysis (SA)",
+            "Low Permeability": "Constant Head & Falling Head Test (CH&FHT)",
+            "Low Shear Strength": "Unconsolidated Undrained Test (UUT), Triaxial Compression Test (TCT)",
+            "Low Shear Strength for cohesive soil": "Unconsolidated Undrained Test (UUT)",
+            "Low Angle of Internal Friction": "Direct Shear Test (DST)",
+            "Low Shear Resistance": "Interface Shear Test (IST)",
+            "Low Cone Resistance": "Cone Penetration Test (CPT)",
+            "Low Soil Resistance to Penetration": "Standard Penetration Test (SPT)",
+            "High Surcharge Load": "Surcharge Load Testing (SLT)",
+            "High Water Table": "Groundwater Depth Measurement (GDM)"
+        };
+
+        $('#wall_material').change(function() {
+            let selectedIssue = $(this).val();
+            let recommendedTest = labTests[selectedIssue] || "No specific test available.";
+
+            $('#labTest').text(recommendedTest);
+        });
+    }
+
+    // Expose key functions to window object for use elsewhere
     window.determineFailureTypes = determineFailureTypes;
     window.determineCauseOfFailure = determineCauseOfFailure;
     window.determineConditionDiagnosis = determineConditionDiagnosis;
+    window.showRecommendations = showRecommendations;
+    window.generateRecommendations = generateRecommendations;
+    window.displayResults = displayResults;
 });
-            const phase2 = document.getElementById('phase2');
-            const assessmentText = document.getElementById('assessmentText');
-            const conditionText = document.getElementById('conditionText');
-            const failureText = document.getElementById('failureText');
-
-            phase2.style.display = 'block';
-
-            assessmentText.textContent = `The following issues were detected: ${selectedIssues.join(", ")}. These indicate potential structural and drainage problems.`;
-
-       
-            let condition = "";
-            if (selectedIssues.includes('Cracks') || selectedIssues.includes('Seepage')) {
-                condition += "The wall shows signs of wear and potential water infiltration. ";
-            }
-            if (selectedIssues.includes('Leaning') || selectedIssues.includes('Bulging')) {
-                condition += "The wall might be experiencing significant structural instability. ";
-            }
-
-            conditionText.textContent = `Condition Diagnosis: ${condition}`;
-
-            let failureTypes = [];
-            if (selectedIssues.includes('Cracks')) failureTypes.push("Tensile failure");
-            if (selectedIssues.includes('Leaning')) failureTypes.push("Overturning failure");
-            if (selectedIssues.includes('Bulging')) failureTypes.push("Sliding failure");
-            if (selectedIssues.includes('Seepage')) failureTypes.push("Hydrostatic pressure failure");
-
-            failureText.textContent = `Type of Failure Identified: ${failureTypes.join(", ")}`;
-
-            $(document).ready(function() {
-            $('#wall_material').select2({
-                placeholder: "-- Select Material --",
-                allowClear: true
-            });
-
-            const labTests = {
-                "Poor soil compaction": "Proctor Compaction Test (PCT)",
-                "Uneven soil compaction": "Field Density Test (FDT)",
-                "Slope greater than the Angle of Repose": "Fixed Funnel Method (FFM), Direct Measurement (DM)",
-                "High Unit Weight": "Density/Unit Weight Test (D/U WT)",
-                "Low Density": "Density/Unit Weight Test (D/U WT)",
-                "High Cohesion": "Direct Shear Test (DST)",
-                "Low Cohesion": "Direct Shear Test (DST)",
-                "High Void Ratio": "Consolidation Test (CT)",
-                "High Moisture Content": "Moisture Content Test (MCT)",
-                "High Plasticity Index": "Atterberg Limits Test (ALT)",
-                "High Liquid Limit": "Atterberg Limits Test (ALT)",
-                "High Capillarity": "Capillary/Wicking Test (C/WT)",
-                "High Consolidation Potential": "Consolidation Test (CT)",
-                "High Compressibility/Compression Index": "Consolidation Test (CT)",
-                "High Proportion of Fined-Grained Soil": "Sieve Analysis (SA)",
-                "Low Permeability": "Constant Head & Falling Head Test (CH&FHT)",
-                "Low Shear Strength": "Unconsolidated Undrained Test (UUT), Triaxial Compression Test (TCT)",
-                "Low Shear Strength for cohesive soil": "Unconsolidated Undrained Test (UUT)",
-                "Low Angle of Internal Friction": "Direct Shear Test (DST)",
-                "Low Shear Resistance": "Interface Shear Test (IST)",
-                "Low Cone Resistance": "Cone Penetration Test (CPT)",
-                "Low Soil Resistance to Penetration": "Standard Penetration Test (SPT)",
-                "High Surcharge Load": "Surcharge Load Testing (SLT)",
-                "High Water Table": "Groundwater Depth Measurement (GDM)"
-            };
-
-            $('#wall_material').change(function() {
-                let selectedIssue = $(this).val();
-                let recommendedTest = labTests[selectedIssue] || "No specific test available.";
-
-                $('#labTest').text(recommendedTest);
-            });
-        });
-
-        
-        </script>
+    </script>
     </body>
     </html>
 

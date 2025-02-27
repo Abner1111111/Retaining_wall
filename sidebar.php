@@ -231,6 +231,10 @@
         </div>
 
         <div class="nav-links">
+        <a href="dashboard.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'Questionnaire.php' ? 'active' : ''; ?>">
+            <ion-icon name="home-outline" class="nav-icon"></ion-icon>
+                <span>Dashboard</span>
+            </a>
             <a href="Questionnaire.php" class="<?php echo basename($_SERVER['PHP_SELF']) == 'Questionnaire.php' ? 'active' : ''; ?>">
             <ion-icon name="create-outline" class="nav-icon"></ion-icon>
                 <span>New Assessment</span>
