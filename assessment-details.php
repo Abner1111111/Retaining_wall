@@ -2,13 +2,11 @@
 session_start();
 require "back/db_configs.php";
 
-// Check if user is authenticated
 if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
     header("Location: index.php");
     exit();
 }
 
-// Check if assessment ID is provided
 if (!isset($_GET['id'])) {
     header("Location: view-assessment.php");
     exit();
@@ -16,7 +14,6 @@ if (!isset($_GET['id'])) {
 
 $assessment_id = $_GET['id'];
 
-// Fetch assessment details
 $stmt = $pdo->prepare("SELECT * FROM wall_assessments WHERE id = ? AND user_id = ?");
 $stmt->execute([$assessment_id, $_SESSION['user_id']]);
 $assessment = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -25,28 +22,18 @@ if (!$assessment) {
     header("Location: view-assessment.php");
     exit();
 }
-
-// Fetch in-situ conditions
 $stmt = $pdo->prepare("SELECT * FROM in_situ_conditions WHERE assessment_id = ?");
 $stmt->execute([$assessment_id]);
 $in_situ_conditions = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch structural analysis
 $stmt = $pdo->prepare("SELECT * FROM structural_analysis WHERE assessment_id = ?");
 $stmt->execute([$assessment_id]);
 $structural_analysis = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch visual indicators
 $stmt = $pdo->prepare("SELECT * FROM visual_indicators WHERE assessment_id = ?");
 $stmt->execute([$assessment_id]);
 $visual_indicators = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch analysis methods
 $stmt = $pdo->prepare("SELECT * FROM analysis_methods WHERE assessment_id = ?");
 $stmt->execute([$assessment_id]);
 $analysis_methods = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-// Fetch assessment results
 $stmt = $pdo->prepare("SELECT * FROM assessment_results WHERE assessment_id = ?");
 $stmt->execute([$assessment_id]);
 $assessment_results = $stmt->fetch(PDO::FETCH_ASSOC);

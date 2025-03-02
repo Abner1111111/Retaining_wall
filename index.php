@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 unset($_SESSION['login_otp']);
                 unset($_SESSION['otp_timestamp']);
                 $_SESSION['authenticated'] = true;
-                header("Location: Questionnaire.php");
+                header("Location: dashboard.php");
                 exit();
             } else {
                 $errors[] = "Invalid OTP. Please try again.";

@@ -11,7 +11,6 @@ $stmt = $pdo->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $user = $stmt->fetch();
 
-// Count total assessments
 $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM wall_assessments WHERE user_id = ?");
 $stmt->execute([$_SESSION['user_id']]);
 $totalAssessments = $stmt->fetch(PDO::FETCH_ASSOC)['total'];
@@ -420,9 +419,7 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
             </div>
         </div>
 
-        <!-- Modified to use a two-column grid layout for the top section -->
         <div class="top-dashboard-grid">
-            <!-- Assessment Summary -->
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Assessment Summary</h2>
@@ -434,9 +431,9 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                         <div class="summary-value"><?php echo $totalAssessments; ?></div>
                     </div>
                     <div class="summary-item">
-    <div class="summary-title">High Risk Structures</div>
-    <div class="summary-value"><?php echo $highCount; ?></div>
-</div>
+                        <div class="summary-title">High Risk Structures</div>
+                        <div class="summary-value"><?php echo $highCount; ?></div>
+                    </div>
                     <div class="summary-item">
                         <div class="summary-title">Medium Risk Structures</div>
                         <div class="summary-value"><?php echo $mediumCount; ?></div>
@@ -456,33 +453,32 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                 </div>
             </div>
             
-            <!-- Severity Breakdown -->
             <div class="card">
                 <div class="card-header">
                     <h2 class="card-title">Severity Breakdown</h2>
                     <div class="card-icon">⚠️</div>
                 </div>
                 <div class="severity-stats">
-    <div class="severity-item">
-        <div class="severity-number"><?php echo $highCount; ?></div>
-        <span class="severity-badge severity-high">High</span>
-    </div>
-    <div class="severity-item">
-        <div class="severity-number"><?php echo $mediumCount; ?></div>
-        <span class="severity-badge severity-medium">Medium</span>
-    </div>
-    <div class="severity-item">
-        <div class="severity-number"><?php echo $lowCount; ?></div>
-        <span class="severity-badge severity-low">Low</span>
-    </div>
-    <?php if ($unknownCount > 0): ?>
-    <div class="severity-item">
-        <div class="severity-number"><?php echo $unknownCount; ?></div>
-        <span class="severity-badge severity-unknown">Unknown</span>
-    </div>
-    <?php endif; ?>
-</div>
-                <div class="progress-container">
+                    <div class="severity-item">
+                        <div class="severity-number"><?php echo $highCount; ?></div>
+                        <span class="severity-badge severity-high">High</span>
+                    </div>
+                    <div class="severity-item">
+                        <div class="severity-number"><?php echo $mediumCount; ?></div>
+                        <span class="severity-badge severity-medium">Medium</span>
+                    </div>
+                    <div class="severity-item">
+                        <div class="severity-number"><?php echo $lowCount; ?></div>
+                        <span class="severity-badge severity-low">Low</span>
+                    </div>
+                    <?php if ($unknownCount > 0): ?>
+                    <div class="severity-item">
+                        <div class="severity-number"><?php echo $unknownCount; ?></div>
+                        <span class="severity-badge severity-unknown">Unknown</span>
+                    </div>
+                    <?php endif; ?>
+                </div>
+                 <div class="progress-container">
                 <?php if ($totalAssessments > 0): ?>
     <!-- High severity progress -->
     <div class="progress-label">
@@ -587,7 +583,6 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
     </div>
 
     <script>
-        // Add the API base URL for PSGC
         const API_BASE_URL = 'https://psgc.gitlab.io/api';
         
         function toggleNav() {
@@ -599,8 +594,7 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
             try {
                 const response = await fetch(`get-assessment.php?id=${id}`);
                 const data = await response.json();
-                
-                // Make sure we're accessing the data property
+            
                 const assessmentData = data.data || data;
                 
                 const modal = document.getElementById('assessmentModal');
@@ -608,13 +602,12 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                 
                 const severityClass = assessmentData.severity ? assessmentData.severity.toLowerCase() : 'unknown';
                 
-                // Calculate detailed age from construction date
                 let age = 'N/A';
                 if (assessmentData.date_of_construction) {
                     age = calculateDetailedAge(assessmentData.date_of_construction);
                 }
                 
-                // Format visual indicators if available
+       
                 let visualIndicators = '<p>No visual indicators recorded</p>';
                 if (assessmentData.visual_indicators && assessmentData.visual_indicators.length > 0) {
                     visualIndicators = '<ul>';
@@ -623,13 +616,11 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                     });
                     visualIndicators += '</ul>';
                 }
-                
-                // Format failure types if available
+
                 let failureTypes = '<p>No failure types recorded</p>';
                 if (assessmentData.failure_types && assessmentData.failure_types.length > 0) {
                     failureTypes = '<ul>';
                     
-                    // Handle both array and string formats
                     const failureTypesArray = Array.isArray(assessmentData.failure_types) 
                         ? assessmentData.failure_types 
                         : JSON.parse(assessmentData.failure_types);
@@ -640,7 +631,6 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                     failureTypes += '</ul>';
                 }
                 
-                // First display modal with placeholder for location
                 modalContent.innerHTML = `
                     <div class="modal-header">
                         <h2>Assessment Details</h2>
@@ -735,14 +725,11 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                         </div>
                     </div>
                 `;
-                
-                // Show the modal immediately
+
                 modal.style.display = 'block';
-                
-                // Asynchronously fetch location data and update the placeholder
+
                 const locationPlaceholder = document.getElementById('location-placeholder');
-                
-                // Get actual location names
+
                 let provinceName = 'N/A';
                 let cityName = 'N/A';
                 let barangayName = 'N/A';
@@ -758,16 +745,13 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                 if (assessmentData.barangay) {
                     barangayName = await getLocationNameByCode('barangays', assessmentData.barangay);
                 }
-                
-                // Create formatted location string
+
                 const locationString = [
                     assessmentData.street_address, 
                     barangayName, 
                     cityName, 
                     provinceName
                     ].filter(item => item && item !== 'N/A').join(', ');
-
-                // Update the location placeholder with the actual data
                 locationPlaceholder.innerHTML = locationString || 'No location data available';
             } catch (error) {
                 console.error('Error fetching assessment details:', error);
@@ -780,7 +764,6 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
             modal.style.display = 'none';
         }
 
-        // Close modal when clicking outside of it
         window.onclick = function(event) {
             const modal = document.getElementById('assessmentModal');
             if (event.target === modal) {
@@ -788,29 +771,17 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
             }
         }
 
-        // Calculate age from construction date with years, months, and days
         function calculateDetailedAge(constructionDateString) {
             if (!constructionDateString) return 'N/A';
             
             const constructionDate = new Date(constructionDateString);
             const today = new Date();
-            
-            // Calculate difference in milliseconds
             const diffTime = Math.abs(today - constructionDate);
-            
-            // Create a Date object for date calculations
             const diffDate = new Date(diffTime);
-            
-            // Calculate years (accounting for JavaScript's date epoch starting in 1970)
             const years = diffDate.getUTCFullYear() - 1970;
-            
-            // Calculate months
+        
             const months = diffDate.getUTCMonth();
-            
-            // Calculate days (subtract 1 because getUTCDate() starts from 1)
             const days = diffDate.getUTCDate() - 1;
-            
-            // Build the age string
             const age = [];
             
             if (years > 0) {
@@ -827,8 +798,6 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
             
             return age.length > 0 ? age.join(', ') : 'Less than a day';
         }
-
-        // Function to fetch location name by code
         async function getLocationNameByCode(type, code) {
             if (!code) return 'N/A';
             
@@ -841,13 +810,13 @@ $newestDate = $dateRange['newest'] ? date('M d, Y', strtotime($dateRange['newest
                 return data.name;
             } catch (error) {
                 console.error(`Error fetching ${type} data:`, error);
-                return code; // Return the code if we couldn't get the name
+                return code; 
             }
         }
     </script>
 
     <style>
-        /* Modal styles */
+     
         .modal {
             display: none;
             position: fixed;

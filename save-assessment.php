@@ -2,38 +2,31 @@
 session_start();
 require "back/db_configs.php";
 
-// Check if user is authenticated
 if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
     http_response_code(401);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
     exit();
 }
 
-// Verify CSRF token
 if (!isset($_POST['form_token']) || $_POST['form_token'] !== $_SESSION['form_token']) {
     http_response_code(403);
     echo json_encode(['status' => 'error', 'message' => 'Invalid form submission']);
     exit();
 }
 
-// Create a new token for next submission
 $_SESSION['form_token'] = bin2hex(random_bytes(32));
 
-// Function to sanitize input
 function sanitize($input) {
     return htmlspecialchars(trim($input), ENT_QUOTES, 'UTF-8');
 }
 
-// Check if it's a POST request
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     try {
-        // Start transaction
         $pdo->beginTransaction();
-        
-        // Basic assessment data
+
         $user_id = $_SESSION['user_id'];
         $date_of_inspection = sanitize($_POST['Date']);
-        $date_of_construction = sanitize($_POST['ConstructionDate'] . '-01'); // Add day to make a complete date
+        $date_of_construction = sanitize($_POST['ConstructionDate'] . '-01');
         $structure_name = isset($_POST['Name']) ? sanitize($_POST['Name']) : null;
         $contract_id = sanitize($_POST['ContractID']);
         $province = sanitize($_POST['province']);
@@ -45,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $type_of_design = sanitize($_POST['Type_of_Design']);
         $type_of_material = sanitize($_POST['Type_of_Material']);
         
-        // Insert main assessment data
         $stmt = $pdo->prepare("INSERT INTO wall_assessments 
             (user_id, date_of_inspection, date_of_construction, structure_name, 
             contract_id, province, city, barangay, street_address, height, base, 
@@ -60,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         $assessment_id = $pdo->lastInsertId();
         
-        // In-situ conditions
         if (isset($_POST['in_situ_conditions']) && isset($_POST['in_situ_values'])) {
             $in_situ_conditions = $_POST['in_situ_conditions'];
             $in_situ_values = $_POST['in_situ_values'];
@@ -73,7 +64,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // Structural analysis
         if (isset($_POST['structural_analysis']) && isset($_POST['structural_analysis_value'])) {
             $structural_analysis = $_POST['structural_analysis'];
             $structural_analysis_values = $_POST['structural_analysis_value'];
@@ -85,8 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
         }
-        
-        // Visual indicators
+
         if (isset($_POST['test'])) {
             $visual_indicators = $_POST['test'];
             
@@ -96,7 +85,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // Analysis methods
         if (isset($_POST['analysis'])) {
             $analysis_methods = $_POST['analysis'];
             
@@ -106,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
         
-        // Process results if they were submitted
         if (isset($_POST['failureTypes']) && isset($_POST['causeOfFailure'])) {
             $failure_types = $_POST['failureTypes'];
             $cause_of_failure = sanitize($_POST['causeOfFailure']);
@@ -114,7 +101,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $severity = sanitize($_POST['severity']);
             $explanation = sanitize($_POST['explanation']);
             
-            // Convert failureTypes to JSON if it's an array
             if (is_array($failure_types)) {
                 $failure_types = json_encode($failure_types);
             }
@@ -131,12 +117,44 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $severity, 
                 $explanation
             ]);
+            
+            $indicators = isset($_POST['test']) ? $_POST['test'] : [];
+            if (is_string($indicators)) {
+                $indicators = json_decode($indicators, true);
+            }
+            $recommendations = generateRecommendationsForDB($failure_types, $cause_of_failure, $indicators);
+
+            if (!empty($recommendations['remediationMethod']['diagnosis1'])) {
+                foreach ($recommendations['remediationMethod']['diagnosis1'] as $method) {
+                    $stmt = $pdo->prepare("INSERT INTO recommendations (assessment_id, remediation_type, remediation_method) VALUES (?, 'diagnosis1', ?)");
+                    $stmt->execute([$assessment_id, sanitize($method)]);
+                }
+            }
+            
+            if (!empty($recommendations['remediationMethod']['diagnosis2'])) {
+                foreach ($recommendations['remediationMethod']['diagnosis2'] as $method) {
+                    $stmt = $pdo->prepare("INSERT INTO recommendations (assessment_id, remediation_type, remediation_method) VALUES (?, 'diagnosis2', ?)");
+                    $stmt->execute([$assessment_id, sanitize($method)]);
+                }
+            }
+            
+            if (!empty($recommendations['remediationMethod']['diagnosis3'])) {
+                foreach ($recommendations['remediationMethod']['diagnosis3'] as $method) {
+                    $stmt = $pdo->prepare("INSERT INTO recommendations (assessment_id, remediation_type, remediation_method) VALUES (?, 'diagnosis3', ?)");
+                    $stmt->execute([$assessment_id, sanitize($method)]);
+                }
+            }
+            
+            if (!empty($recommendations['supportingLabTests'])) {
+                foreach ($recommendations['supportingLabTests'] as $test) {
+                    $stmt = $pdo->prepare("INSERT INTO recommended_lab_tests (assessment_id, test_name) VALUES (?, ?)");
+                    $stmt->execute([$assessment_id, sanitize($test)]);
+                }
+            }
         }
         
-        // Commit transaction
         $pdo->commit();
-        
-        // Return success response
+      
         echo json_encode([
             'status' => 'success', 
             'message' => 'Assessment saved successfully',
@@ -144,30 +162,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
         
     } catch (PDOException $e) {
-        // Rollback transaction on error
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         
-        // Log error
         error_log('Database Error: ' . $e->getMessage());
-        
-        // Return error response
+
         http_response_code(500);
         echo json_encode([
             'status' => 'error', 
             'message' => 'Database error occurred: ' . $e->getMessage()
         ]);
     } catch (Exception $e) {
-        // Rollback transaction on error
         if ($pdo->inTransaction()) {
             $pdo->rollBack();
         }
         
-        // Log error
         error_log('General Error: ' . $e->getMessage());
-        
-        // Return error response
+       
         http_response_code(500);
         echo json_encode([
             'status' => 'error', 
@@ -175,7 +187,157 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         ]);
     }
 } else {
-    // Not a POST request
     http_response_code(405);
     echo json_encode(['status' => 'error', 'message' => 'Method not allowed']);
+}
+
+function generateRecommendationsForDB($failureTypes, $causeOfFailure, $indicators) {
+    $recommendations = [
+        'remediationMethod' => [
+            'diagnosis1' => [],
+            'diagnosis2' => [],
+            'diagnosis3' => [],
+        ],
+        'supportingLabTests' => []
+    ];
+
+    if (is_string($failureTypes)) {
+        $failureTypes = json_decode($failureTypes, true);
+    }
+    
+    if (is_string($indicators)) {
+        $indicators = json_decode($indicators, true);
+    }
+    
+    if (!is_array($indicators)) {
+        $indicators = [];
+    }
+
+    if (count($indicators) === 0) {
+        $recommendations['remediationMethod']['diagnosis1'][] = 'No need of Remediation';
+    } elseif (in_array('Collapse of upper-height', $indicators) || 
+              in_array('Displacement of entire structure', $indicators)) {
+        $recommendations['remediationMethod']['diagnosis3'][] = 'Wall Replacement';
+    } else {
+        foreach ($failureTypes as $type) {
+            switch($type) {
+                case 'Sliding':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Soil nailing', 'Anchoring', 'Concrete jacket']
+                    );
+                    break;
+                case 'Overturning':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Buttressing', 'Anchoring', 'Tiebacks']
+                    );
+                    break;
+                case 'Wall Bending':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Steel Bracing', 'Fiber-Reinforced Shotcrete', 'Concrete jacket']
+                    );
+                    break;
+                case 'Drainage Failure':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Perforated pipes', 'Geocomposite drains', 'Geotextiles']
+                    );
+                    break;
+                case 'Wall Fracture':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Crack Injection', 'Surface Sealing', 'Reinforcement Addition']
+                    );
+                    break;
+                case 'Foundation Failure':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Underpinning', 'Micropiles', 'Foundation Reinforcement']
+                    );
+                    break;
+                case 'Base Failure':
+                    $recommendations['remediationMethod']['diagnosis2'] = array_merge(
+                        $recommendations['remediationMethod']['diagnosis2'],
+                        ['Base Reinforcement', 'Soil Replacement', 'Erosion Control Measures']
+                    );
+                    break;
+                default:
+                    $recommendations['remediationMethod']['diagnosis2'][] = 'Professional structural assessment';
+                    break;
+            }
+        }
+    }
+
+    switch($causeOfFailure) {
+        case 'Poor Drainage':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['(CH&FHT) Constant Head and Falling Head Test', '(GDM) Groundwater Depth Measurement']
+            );
+            break;
+        case 'Base Material Failure':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['(PCT) Proctor Compaction Test', '(DST) Direct Shear Test']
+            );
+            break;
+        case 'Foundation Issues':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['(SPT) Standard Penetration Test', '(CPT) Cone Penetration Test']
+            );
+            break;
+        case 'Material Degradation':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Material Strength Test', 'Chemical Analysis']
+            );
+            break;
+        case 'Excessive Earth Pressure':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Lateral Earth Pressure Measurement', '(DST) Direct Shear Test']
+            );
+            break;
+        case 'Drainage Issues':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Permeability Test', 'Infiltration Test']
+            );
+            break;
+        case 'Poor Soil Conditions':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Soil Classification Test', '(ALT) Atterberg Limits Test']
+            );
+            break;
+        case 'Water Infiltration':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Moisture Content Test', 'Hydraulic Conductivity Test']
+            );
+            break;
+        case 'Structural Stress':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Stress Analysis', 'Material Strength Test']
+            );
+            break;
+        case 'Slope Instability':
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Slope Stability Analysis', 'Soil Shear Strength Test']
+            );
+            break;
+        default:
+            $recommendations['supportingLabTests'] = array_merge(
+                $recommendations['supportingLabTests'],
+                ['Comprehensive Soil Testing Suite', 'Structural Integrity Assessment']
+            );
+            break;
+    }
+
+    return $recommendations;
 }

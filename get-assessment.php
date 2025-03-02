@@ -2,21 +2,25 @@
 session_start();
 require "back/db_configs.php";
 
-// Check if user is authenticated
-if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
+
+if (!isset($_SESSION['authenticated']) || $_SESSION['authenticated'] !== true) {
     http_response_code(401);
     echo json_encode(['status' => 'error', 'message' => 'Unauthorized access']);
     exit();
 }
 
-if (!isset($_GET['id'])) {
+
+if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
     http_response_code(400);
-    echo json_encode(['status' => 'error', 'message' => 'No assessment ID provided']);
+    echo json_encode(['status' => 'error', 'message' => 'Invalid or missing assessment ID']);
     exit();
 }
 
+$assessmentId = (int)$_GET['id'];
+$userId = (int)$_SESSION['user_id'];
+
 try {
-    // Get main assessment data
+
     $query = "
         SELECT 
             wa.*
@@ -25,14 +29,15 @@ try {
     ";
     
     $stmt = $pdo->prepare($query);
-    $stmt->execute([$_GET['id'], $_SESSION['user_id']]);
+    $stmt->execute([$assessmentId, $userId]);
     $assessment = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if (!$assessment) {
-        throw new Exception('Assessment not found');
+        http_response_code(404);
+        echo json_encode(['status' => 'error', 'message' => 'Assessment not found']);
+        exit();
     }
     
-    // Get assessment results
     $stmt = $pdo->prepare("
         SELECT 
             failure_types, 
@@ -43,70 +48,77 @@ try {
         FROM assessment_results 
         WHERE assessment_id = ?
     ");
-    $stmt->execute([$_GET['id']]);
+    $stmt->execute([$assessmentId]);
     $results = $stmt->fetch(PDO::FETCH_ASSOC);
     
     if ($results) {
-        // Add results to assessment data
         $assessment = array_merge($assessment, $results);
         
-        // Convert JSON string back to array if needed
         if (isset($assessment['failure_types']) && is_string($assessment['failure_types'])) {
-            $assessment['failure_types'] = json_decode($assessment['failure_types'], true);
+            $assessment['failure_types'] = json_decode($assessment['failure_types'], true) ?? [];
         }
     }
     
-    // Get in-situ conditions
     $stmt = $pdo->prepare("
         SELECT condition_type, test_result 
         FROM in_situ_conditions 
         WHERE assessment_id = ?
     ");
-    $stmt->execute([$_GET['id']]);
-    $assessment['in_situ_conditions'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt->execute([$assessmentId]);
+    $assessment['in_situ_conditions'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
     
-    // Get structural analysis
+
     $stmt = $pdo->prepare("
         SELECT analysis_type, test_result 
         FROM structural_analysis 
         WHERE assessment_id = ?
     ");
-    $stmt->execute([$_GET['id']]);
-    $assessment['structural_analysis'] = $stmt->fetchAll(PDO::FETCH_ASSOC);
-    
-    // Get visual indicators
+    $stmt->execute([$assessmentId]);
+    $assessment['structural_analysis'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
+
     $stmt = $pdo->prepare("
         SELECT indicator 
         FROM visual_indicators 
         WHERE assessment_id = ?
     ");
-    $stmt->execute([$_GET['id']]);
-    $assessment['visual_indicators'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    
-    // Get analysis methods
+    $stmt->execute([$assessmentId]);
+    $assessment['visual_indicators'] = $stmt->fetchAll(PDO::FETCH_COLUMN) ?? [];
+
     $stmt = $pdo->prepare("
         SELECT method 
         FROM analysis_methods 
         WHERE assessment_id = ?
     ");
-    $stmt->execute([$_GET['id']]);
-    $assessment['analysis_methods'] = $stmt->fetchAll(PDO::FETCH_COLUMN);
-    
-    // Return success response
+    $stmt->execute([$assessmentId]);
+    $assessment['analysis_methods'] = $stmt->fetchAll(PDO::FETCH_COLUMN) ?? [];
+
+    $stmt = $pdo->prepare("
+        SELECT test_name, created_at
+        FROM recommended_lab_tests
+        WHERE assessment_id = ?
+        ORDER BY created_at
+    ");
+    $stmt->execute([$assessmentId]);
+    $assessment['lab_tests'] = $stmt->fetchAll(PDO::FETCH_ASSOC) ?? [];
+
     echo json_encode([
         'status' => 'success',
         'data' => $assessment
     ]);
     
-} catch (Exception $e) {
-    // Log error
-    error_log('Error retrieving assessment: ' . $e->getMessage());
-    
-    // Return error response
+} catch (PDOException $e) {
+    error_log('Database error retrieving assessment: ' . $e->getMessage());
     http_response_code(500);
     echo json_encode([
         'status' => 'error', 
-        'message' => 'An error occurred: ' . $e->getMessage()
+        'message' => 'A database error occurred'
+    ]);
+} catch (Exception $e) {
+    error_log('Error retrieving assessment: ' . $e->getMessage());
+    http_response_code(500);
+    echo json_encode([
+        'status' => 'error', 
+        'message' => 'An error occurred while processing your request'
     ]);
 }
 ?>

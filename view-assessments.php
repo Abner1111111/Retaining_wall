@@ -77,309 +77,7 @@ function calculate_age($construction_date) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View Assessments</title> 
-   <style>
-    * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Inter', 'Roboto', sans-serif;
-    line-height: 1.6;
-    background-color: #f5f5f5;
-    color: #333;
-}
-
-.container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.header {
-    background-color: #73877b;
-    color: white;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-.header-content {
-    flex-grow: 1;
-}
-
-.user-info {
-    text-align: right;
-    font-size: 0.9em;
-}
-
-.section {
-    background: white;
-    padding: 25px;
-    margin-bottom: 30px;
-    border-radius: 10px;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-}
-
-.filters {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 20px;
-    margin-bottom: 20px;
-}
-
-.filter-item {
-    margin-bottom: 15px;
-}
-
-.filter-item label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 500;
-}
-
-.filter-item select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-}
-
-.assessments-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 20px;
-}
-
-.assessments-table th,
-.assessments-table td {
-    padding: 12px;
-    text-align: left;
-    border-bottom: 1px solid #ddd;
-}
-
-.assessments-table th {
-    background-color: #f8f9fa;
-    font-weight: 600;
-}
-
-.severity-badge {
-    padding: 4px 8px;
-    border-radius: 4px;
-    font-size: 0.85em;
-    font-weight: 500;
-    text-align: center;
-}
-
-.severity-high {
-    background-color: #dc3545;
-    color: white;
-}
-
-.severity-medium {
-    background-color: #ffc107;
-    color: black;
-}
-
-.severity-low {
-    background-color: #28a745;
-    color: white;
-}
-
-.view-button {
-    background-color: #73877b;
-    color: white;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    text-decoration: none;
-    font-size: 0.9em;
-}
-
-.view-button:hover {
-    background-color: #5a6e62;
-}
-
-
-.modal {
-    display: none;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    z-index: 1000;
-    overflow-y: auto;
-}
-
-.modal-content {
-    position: relative;
-    background-color: white;
-    margin: 50px auto;
-    padding: 30px;
-    width: 90%;
-    max-width: 800px;
-    border-radius: 12px;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-    animation: modalFadeIn 0.3s ease-out;
-}
-
-.modal-header {
-    border-bottom: 2px solid #f0f0f0;
-    padding-bottom: 20px;
-    margin-bottom: 25px;
-}
-
-.modal-header h2 {
-    color: #2c3e50;
-    font-size: 1.8rem;
-    margin: 0;
-    padding-right: 40px;
-}
-
-.close-button {
-    position: absolute;
-    right: 25px;
-    top: 25px;
-    font-size: 28px;
-    color: #666;
-    cursor: pointer;
-    width: 30px;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border-radius: 50%;
-    transition: all 0.2s ease;
-}
-
-.close-button:hover {
-    background-color: #f0f0f0;
-    color: #333;
-}
-
-.assessment-section {
-    padding: 20px;
-    margin-bottom: 20px;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    border-left: 4px solid #73877b;
-}
-
-.assessment-section h3 {
-    color: #2c3e50;
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-}
-
-.info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.info-item {
-    padding: 15px;
-    background-color: white;
-    border-radius: 6px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-}
-
-.info-item strong {
-    color: #5a6e62;
-    display: block;
-    margin-bottom: 5px;
-    font-size: 0.9rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-
-.severity-indicator {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 12px;
-    border-radius: 6px;
-    font-weight: 500;
-    margin-top: 5px;
-}
-
-.severity-indicator.high {
-    background-color: #fde8e8;
-    color: #dc3545;
-}
-
-.severity-indicator.medium {
-    background-color: #fff3cd;
-    color: #856404;
-}
-
-.severity-indicator.low {
-    background-color: #d4edda;
-    color: #155724;
-}
-
-.recommendations {
-    background-color: #fff;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    margin-top: 20px;
-}
-
-.recommendations h3 {
-    color: #2c3e50;
-    margin-bottom: 15px;
-}
-
-.recommendations p {
-    color: #444;
-    line-height: 1.6;
-    white-space: pre-line;
-}
-@keyframes modalFadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-            to {
-            opacity: 1;
-            transform: translateY(0);
-            }
-}
-
-@media (max-width: 768px) {
-        .modal-content {
-        margin: 20px;
-        padding: 20px;
-        width: auto;
-        }
-
-        .info-grid {
-        grid-template-columns: 1fr;
-        }
-}
-@media (max-width: 768px) {
-    .filters {
-        grid-template-columns: 1fr;
-    }
-
-    .assessments-table {
-        display: block;
-        overflow-x: auto;
-    }
-}
-   </style>
+  <link rel="stylesheet" href="Css/view-assessment.css">
 </head>
 <body>
        
@@ -461,10 +159,13 @@ body {
                         </td>
                         <td><?php echo $assessment['date_of_inspection'] ? date('Y-m-d', strtotime($assessment['date_of_inspection'])) : 'N/A'; ?></td>
                         <td>
-                            <button class="view-button" onclick="viewAssessment(<?php echo $assessment['id']; ?>)">
-                                View Details
-                            </button>
-                        </td>
+                        <button class="view-button" onclick="viewAssessment(<?php echo $assessment['id']; ?>)">
+                            View Details
+                        </button>
+                        <button class="print-button" onclick="printAssessment(<?php echo $assessment['id']; ?>)">
+                            <i class="fas fa-print"></i> Print
+                        </button>
+                    </td>
                     </tr>
                     <?php endforeach; ?>
                 </tbody>
@@ -474,13 +175,13 @@ body {
 
     <div id="assessmentModal" class="modal">
         <div class="modal-content">
+            
             <span class="close-button" onclick="closeModal()">&times;</span>
             <div id="modalContent"></div>
         </div>
     </div>
 
     <script>
-        // Add the API base URL for PSGC
         const API_BASE_URL = 'https://psgc.gitlab.io/api';
         const REGION_12_CODE = '120000000';
         
@@ -513,8 +214,7 @@ body {
         document.getElementById('severity-filter').addEventListener('change', filterTable);
         document.getElementById('design-filter').addEventListener('change', filterTable);
         document.getElementById('material-filter').addEventListener('change', filterTable);
-        
-        // Function to fetch location name by code
+
         async function getLocationNameByCode(type, code) {
             if (!code) return 'N/A';
             
@@ -527,33 +227,24 @@ body {
                 return data.name;
             } catch (error) {
                 console.error(`Error fetching ${type} data:`, error);
-                return code; // Return the code if we couldn't get the name
+                return code; 
             }
         }
-
-        // Calculate age from construction date with years, months, and days
         function calculateDetailedAge(constructionDateString) {
             if (!constructionDateString) return 'N/A';
             
             const constructionDate = new Date(constructionDateString);
             const today = new Date();
-            
-            // Calculate difference in milliseconds
             const diffTime = Math.abs(today - constructionDate);
-            
-            // Create a Date object for date calculations
             const diffDate = new Date(diffTime);
             
-            // Calculate years (accounting for JavaScript's date epoch starting in 1970)
             const years = diffDate.getUTCFullYear() - 1970;
             
-            // Calculate months
+        
             const months = diffDate.getUTCMonth();
-            
-            // Calculate days (subtract 1 because getUTCDate() starts from 1)
             const days = diffDate.getUTCDate() - 1;
             
-            // Build the age string
+           
             const age = [];
             
             if (years > 0) {
@@ -571,188 +262,331 @@ body {
             return age.length > 0 ? age.join(', ') : 'Less than a day';
         }
 
+
+
         async function viewAssessment(id) {
+        try {
+        const response = await fetch(`get-assessment.php?id=${id}`);
+        const data = await response.json();
+        const assessmentData = data.data || data;
+      
+        const recommendationsResponse = await fetch(`get-recommendations.php?assessment_id=${id}`);
+        const recommendationsData = await recommendationsResponse.json();
+        const recommendations = recommendationsData.data || [];
+        
+        const labTestsResponse = await fetch(`get-lab-tests.php?assessment_id=${id}`);
+        const labTestsData = await labTestsResponse.json();
+        const labTests = labTestsData.data || [];
+        
+        const modal = document.getElementById('assessmentModal');
+        const modalContent = document.getElementById('modalContent');
+        
+        const severityClass = assessmentData.severity ? assessmentData.severity.toLowerCase() : 'unknown';
+        
+
+        let age = 'N/A';
+        if (assessmentData.date_of_construction) {
+            age = calculateDetailedAge(assessmentData.date_of_construction);
+        }
+        
+        let visualIndicators = '<p>No visual indicators recorded</p>';
+        if (assessmentData.visual_indicators) {
             try {
-                const response = await fetch(`get-assessment.php?id=${id}`);
-                const data = await response.json();
+              
+                   const indicatorsArray = typeof assessmentData.visual_indicators === 'string' 
+                    ? JSON.parse(assessmentData.visual_indicators) 
+                    : assessmentData.visual_indicators;
                 
-                // Make sure we're accessing the data property
-                const assessmentData = data.data || data;
-                
-                const modal = document.getElementById('assessmentModal');
-                const modalContent = document.getElementById('modalContent');
-                
-                const severityClass = assessmentData.severity ? assessmentData.severity.toLowerCase() : 'unknown';
-                
-                // Calculate detailed age from construction date
-                let age = 'N/A';
-                if (assessmentData.date_of_construction) {
-                    age = calculateDetailedAge(assessmentData.date_of_construction);
-                }
-                
-                // Format visual indicators if available
-                let visualIndicators = '<p>No visual indicators recorded</p>';
-                if (assessmentData.visual_indicators && assessmentData.visual_indicators.length > 0) {
+                if (indicatorsArray && indicatorsArray.length > 0) {
                     visualIndicators = '<ul>';
-                    assessmentData.visual_indicators.forEach(indicator => {
+                    indicatorsArray.forEach(indicator => {
                         visualIndicators += `<li>${indicator}</li>`;
                     });
                     visualIndicators += '</ul>';
                 }
+            } catch (e) {
+                console.error('Error parsing visual indicators:', e);
+                visualIndicators = `<p>${assessmentData.visual_indicators}</p>`;
+            }
+        }
+        
+        let failureTypes = '<p>No failure types recorded</p>';
+        if (assessmentData.failure_types) {
+            try {
+                const failureTypesArray = typeof assessmentData.failure_types === 'string' 
+                    ? JSON.parse(assessmentData.failure_types) 
+                    : assessmentData.failure_types;
                 
-                // Format failure types if available
-                let failureTypes = '<p>No failure types recorded</p>';
-                if (assessmentData.failure_types && assessmentData.failure_types.length > 0) {
+                if (failureTypesArray && failureTypesArray.length > 0) {
                     failureTypes = '<ul>';
-                    
-                    // Handle both array and string formats
-                    const failureTypesArray = Array.isArray(assessmentData.failure_types) 
-                        ? assessmentData.failure_types 
-                        : JSON.parse(assessmentData.failure_types);
-                        
                     failureTypesArray.forEach(type => {
                         failureTypes += `<li>${type}</li>`;
                     });
                     failureTypes += '</ul>';
                 }
-                
-                // First display modal with placeholder for location
-                modalContent.innerHTML = `
-                    <div class="modal-header">
-                        <h2>Assessment Details</h2>
-                    </div>
-                    
-                    <div class="assessment-section">
-                        <h3>Basic Information</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <strong>Structure Name</strong>
-                                ${assessmentData.structure_name || 'N/A'}
-                            </div>
-                            <div class="info-item">
-                                <strong>Contract ID</strong>
-                                ${assessmentData.contract_id || 'N/A'}
-                            </div>
-                            <div class="info-item">
-                                <strong>Construction Date</strong>
-                                ${assessmentData.date_of_construction ? new Date(assessmentData.date_of_construction).toLocaleDateString() : 'N/A'}
-                            </div>
-                            <div class="info-item">
-                                <strong>Age</strong>
-                                ${age}
-                            </div>
-                            <div class="info-item">
-                                <strong>Inspection Date</strong>
-                                ${assessmentData.date_of_inspection ? new Date(assessmentData.date_of_inspection).toLocaleDateString() : 'N/A'}
-                            </div>
-                            <div class="info-item" id="location-info">
-                                <strong>Location</strong>
-                                <span id="location-placeholder">Loading location data...</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="assessment-section">
-                        <h3>Structure Details</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <strong>Type of Design</strong>
-                                ${assessmentData.type_of_design || 'N/A'}
-                            </div>
-                            <div class="info-item">
-                                <strong>Material</strong>
-                                ${assessmentData.type_of_material || 'N/A'}
-                            </div>
-                            <div class="info-item">
-                                <strong>Height</strong>
-                                ${assessmentData.height ? assessmentData.height + ' m' : 'N/A'}
-                            </div>
-                            <div class="info-item">
-                                <strong>Base Width</strong>
-                                ${assessmentData.base ? assessmentData.base + ' m' : 'N/A'}
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="assessment-section">
-                        <h3>Visual Indicators</h3>
-                        ${visualIndicators}
-                    </div>
-                    
-                    <div class="assessment-section">
-                        <h3>Assessment Results</h3>
-                        <div class="info-grid">
-                            <div class="info-item">
-                                <strong>Severity Level</strong>
-                                <div class="severity-indicator ${severityClass}">
-                                    ${assessmentData.severity || 'Unknown'}
-                                </div>
-                            </div>
-                           
-                            <div class="info-item">
-                                <strong>Condition Diagnosis</strong>
-                                ${assessmentData.condition_diagnosis || 'N/A'}
-                            </div>
-                        </div>
-                        
-                        <div class="info-item" style="margin-top: 20px;">
-                            <strong>Failure Types</strong>
-                            ${failureTypes}
-                        </div>
-                          <br>
-                        <div class="info-item">
-                            <strong>Cause of Failure</strong>
-                            <p>${assessmentData.cause_of_failure || 'Not specified'}</p>
-                        </div>
-                          <br>
-                        <div class="info-item">
-                            <strong>Explanation</strong>
-                            <p>${assessmentData.explanation || 'No detailed explanation available'}</p>
-                        </div>
-                    </div>
-                `;
-                
-                // Show the modal immediately
-                modal.style.display = 'block';
-                
-                // Asynchronously fetch location data and update the placeholder
-                const locationPlaceholder = document.getElementById('location-placeholder');
-                
-                // Get actual location names
-                let provinceName = 'N/A';
-                let cityName = 'N/A';
-                let barangayName = 'N/A';
-                
-                if (assessmentData.province) {
-                    provinceName = await getLocationNameByCode('provinces', assessmentData.province);
-                }
-                
-                if (assessmentData.city) {
-                    cityName = await getLocationNameByCode('cities-municipalities', assessmentData.city);
-                }
-                
-                if (assessmentData.barangay) {
-                    barangayName = await getLocationNameByCode('barangays', assessmentData.barangay);
-                }
-                
-                // Create formatted location string
-                const locationString = [
-                    assessmentData.street_address, 
-                    barangayName, 
-                    cityName, 
-                    provinceName
-                ].filter(item => item && item !== 'N/A').join(', ');
-                
-                // Update the location placeholder with the actual location
-                if (locationPlaceholder) {
-                    locationPlaceholder.textContent = locationString || 'N/A';
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                alert('Error loading assessment details. Please try again.');
+            } catch (e) {
+                console.error('Error parsing failure types:', e);
+                failureTypes = `<p>${assessmentData.failure_types}</p>`;
             }
         }
+    
+        let inSituConditionsTable = '<p>No in-situ conditions recorded</p>';
+        if (assessmentData.in_situ_conditions && assessmentData.in_situ_conditions.length > 0) {
+            inSituConditionsTable = `
+                <table class="assessment-table">
+                    <thead>
+                        <tr>
+                            <th style="border-right: 1px solid #ccc; padding-right: 10px;">Condition Type</th>
+                            <th style="padding-left: 10px;">Test Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            assessmentData.in_situ_conditions.forEach(condition => {
+                inSituConditionsTable += `
+                    <tr>
+                        <td style="border-right: 1px solid #ccc; padding-right: 10px;">${condition.condition_type || 'N/A'}</td>
+                        <td style="padding-left: 10px;">${condition.test_result || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+            
+            inSituConditionsTable += `
+                    </tbody>
+                </table>
+            `;
+        }
+        
+     
+        let structuralAnalysisTable = '<p>No structural analysis recorded</p>';
+        if (assessmentData.structural_analysis && assessmentData.structural_analysis.length > 0) {
+            structuralAnalysisTable = `
+                <table class="assessment-table">
+                    <thead>
+                        <tr>
+                            <th style="border-right: 1px solid #ccc; padding-right: 10px;">Analysis Type</th>
+                            <th style="padding-left: 10px;">Test Result</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            assessmentData.structural_analysis.forEach(analysis => {
+                structuralAnalysisTable += `
+                    <tr>
+                        <td style="border-right: 1px solid #ccc; padding-right: 10px;">${analysis.analysis_type || 'N/A'}</td>
+                        <td style="padding-left: 10px;">${analysis.test_result || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+
+            structuralAnalysisTable += `
+                    </tbody>
+                </table>
+            `;
+
+
+       structuralAnalysisTable += `
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        let labTestsTable = '<p>No laboratory tests recommended</p>';
+        if (labTests && labTests.length > 0) {
+            labTestsTable = `
+                <table class="assessment-table">
+                    <thead>
+                        <tr>
+                            <th>Test Name</th>
+                           
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            labTests.forEach(test => {
+                const testDate = test.created_at ? new Date(test.created_at).toLocaleDateString() : 'N/A';
+                labTestsTable += `
+                    <tr>
+                        <td>${test.test_name || 'Unnamed test'}</td>
+                 
+                    </tr>
+                `;
+            });
+            
+            labTestsTable += `
+                    </tbody>
+                </table>
+            `;
+        }
+
+        let recommendationsHTML = '<p>No recommendations available</p>';
+        if (recommendations && recommendations.length > 0) {
+            recommendationsHTML = '<ul class="recommendations-list">';
+            recommendations.forEach(rec => {
+                recommendationsHTML += `
+                    <li class="recommendation-item">
+                        <div class="recommendation-method">${rec.remediation_method || 'No specific method provided'}</div>
+                    </li>
+                `;
+            });
+            recommendationsHTML += '</ul>';
+        }
+        modalContent.innerHTML = `
+            <div class="modal-header">
+                <h2>Assessment Details</h2>
+                <button class="print-button" onclick="printAssessment(${id})">
+                    <i class="fas fa-print"></i> Print Report
+                </button>
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Basic Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Structure Name</strong>
+                        ${assessmentData.structure_name || 'N/A'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Contract ID</strong>
+                        ${assessmentData.contract_id || 'N/A'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Construction Date</strong>
+                        ${assessmentData.date_of_construction ? new Date(assessmentData.date_of_construction).toLocaleDateString() : 'N/A'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Age</strong>
+                        ${age}
+                    </div>
+                    <div class="info-item">
+                        <strong>Inspection Date</strong>
+                        ${assessmentData.date_of_inspection ? new Date(assessmentData.date_of_inspection).toLocaleDateString() : 'N/A'}
+                    </div>
+                    <div class="info-item" id="location-info">
+                        <strong>Location</strong>
+                        <span id="location-placeholder">Loading location data...</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Structure Details</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Type of Design</strong>
+                        ${assessmentData.type_of_design || 'N/A'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Material</strong>
+                        ${assessmentData.type_of_material || 'N/A'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Height</strong>
+                        ${assessmentData.height ? assessmentData.height + ' m' : 'N/A'}
+                    </div>
+                    <div class="info-item">
+                        <strong>Base Width</strong>
+                        ${assessmentData.base ? assessmentData.base + ' m' : 'N/A'}
+                    </div>
+                </div>
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Visual Indicators</h3>
+                ${visualIndicators}
+            </div>
+            
+            <div class="assessment-section">
+                <h3>In-Situ Conditions</h3>
+                ${inSituConditionsTable}
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Structural Analysis</h3>
+                ${structuralAnalysisTable}
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Assessment Results</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Severity Level</strong>
+                        <div class="severity-indicator ${severityClass}">
+                            ${assessmentData.severity || 'Unknown'}
+                        </div>
+                    </div>
+                   
+                    <div class="info-item">
+                        <strong>Condition Diagnosis</strong>
+                        ${assessmentData.condition_diagnosis || 'N/A'}
+                    </div>
+                </div>
+                
+                <div class="info-item" style="margin-top: 20px;">
+                    <strong>Failure Types</strong>
+                    ${failureTypes}
+                </div>
+                <br>
+                <div class="info-item">
+                    <strong>Cause of Failure</strong>
+                    <p>${assessmentData.cause_of_failure || 'Not specified'}</p>
+                </div>
+                <br>
+                <div class="info-item">
+                    <strong>Explanation</strong>
+                    <p>${assessmentData.explanation || 'No detailed explanation available'}</p>
+                </div>
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Recommendations</h3>
+                ${recommendationsHTML}
+            </div>
+            
+            <div class="assessment-section">
+                <h3>Recommended Laboratory Tests</h3>
+                ${labTestsTable}
+            </div>
+        `;
+        
+        modal.style.display = 'block';
+        const locationPlaceholder = document.getElementById('location-placeholder');
+        
+        let provinceName = 'N/A';
+        let cityName = 'N/A';
+        let barangayName = 'N/A';
+        
+        if (assessmentData.province) {
+            provinceName = await getLocationNameByCode('provinces', assessmentData.province);
+        }
+        
+        if (assessmentData.city) {
+            cityName = await getLocationNameByCode('cities-municipalities', assessmentData.city);
+        }
+        
+        if (assessmentData.barangay) {
+            barangayName = await getLocationNameByCode('barangays', assessmentData.barangay);
+        }
+        
+        const locationString = [
+            assessmentData.street_address, 
+            barangayName, 
+            cityName, 
+            provinceName
+        ].filter(item => item && item !== 'N/A').join(', ');
+        
+        if (locationPlaceholder) {
+            locationPlaceholder.textContent = locationString || 'N/A';
+        }
+        
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error loading assessment details. Please try again.');
+    }
+}
         
         function closeModal() {
             document.getElementById('assessmentModal').style.display = 'none';
@@ -764,6 +598,566 @@ body {
                 modal.style.display = 'none';
             }
         }
-    </script>
+        
+        async function printAssessment(id) {
+    let printWindow = null;
+    
+    try {
+        const response = await fetch(`get-assessment.php?id=${id}`);
+        if (!response.ok) throw new Error(`Failed to fetch assessment data: ${response.status}`);
+        const data = await response.json();
+        const assessmentData = data.data || data;
+        
+        const recommendationsResponse = await fetch(`get-recommendations.php?assessment_id=${id}`);
+        if (!recommendationsResponse.ok) throw new Error(`Failed to fetch recommendations: ${recommendationsResponse.status}`);
+        const recommendationsData = await recommendationsResponse.json();
+        const recommendations = recommendationsData.data || [];
+        
+        const labTestsResponse = await fetch(`get-lab-tests.php?assessment_id=${id}`);
+        if (!labTestsResponse.ok) throw new Error(`Failed to fetch lab tests: ${labTestsResponse.status}`);
+        const labTestsData = await labTestsResponse.json();
+        const labTests = labTestsData.data || [];
+        
+        printWindow = window.open('', '_blank');
+        if (!printWindow) throw new Error('Failed to open print window. Please check if pop-ups are blocked.');
+        
+        let provinceName = 'N/A';
+        let cityName = 'N/A';
+        let barangayName = 'N/A';
+        
+        if (assessmentData.province) {
+            try {
+                provinceName = await getLocationNameByCode('provinces', assessmentData.province);
+            } catch (e) {
+                console.error('Error fetching province name:', e);
+            }
+        }
+        
+        if (assessmentData.city) {
+            try {
+                cityName = await getLocationNameByCode('cities-municipalities', assessmentData.city);
+            } catch (e) {
+                console.error('Error fetching city name:', e);
+            }
+        }
+        
+        if (assessmentData.barangay) {
+            try {
+                barangayName = await getLocationNameByCode('barangays', assessmentData.barangay);
+            } catch (e) {
+                console.error('Error fetching barangay name:', e);
+            }
+        }
+  
+        const locationString = [
+            assessmentData.street_address, 
+            barangayName, 
+            cityName, 
+            provinceName
+        ].filter(item => item && item !== 'N/A').join(', ');
+        
+        let age = 'N/A';
+        if (assessmentData.date_of_construction) {
+            try {
+                age = calculateDetailedAge(assessmentData.date_of_construction);
+            } catch (e) {
+                console.error('Error calculating age:', e);
+            }
+        }
+
+        let failureTypesHTML = 'None recorded';
+        if (assessmentData.failure_types) {
+            try {
+                const failureTypesArray = typeof assessmentData.failure_types === 'string' 
+                    ? JSON.parse(assessmentData.failure_types) 
+                    : assessmentData.failure_types;
+                    
+                if (failureTypesArray && Array.isArray(failureTypesArray) && failureTypesArray.length > 0) {
+                    failureTypesHTML = failureTypesArray.join(', ');
+                }
+            } catch (e) {
+                console.error('Error parsing failure types:', e);
+                failureTypesHTML = String(assessmentData.failure_types);
+            }
+        }
+        
+        let visualIndicatorsHTML = 'None recorded';
+        if (assessmentData.visual_indicators) {
+            try {
+                const indicatorsArray = typeof assessmentData.visual_indicators === 'string' 
+                    ? JSON.parse(assessmentData.visual_indicators) 
+                    : assessmentData.visual_indicators;
+                    
+                if (indicatorsArray && Array.isArray(indicatorsArray) && indicatorsArray.length > 0) {
+                    visualIndicatorsHTML = indicatorsArray.join(', ');
+                }
+            } catch (e) {
+                console.error('Error parsing visual indicators:', e);
+                visualIndicatorsHTML = String(assessmentData.visual_indicators);
+            }
+        }
+        
+            
+        let inSituConditionsHTML = '<p>No in-situ conditions available</p>';
+        if (assessmentData.in_situ_conditions && assessmentData.in_situ_conditions.length > 0) {
+            inSituConditionsHTML = '<table width="100%" border="1" cellspacing="0" cellpadding="5">';
+            inSituConditionsHTML += `
+                <tr>
+                    <th style="background-color: #f2f2f2;">Condition Type</th>
+                    <th style="background-color: #f2f2f2;">Test Result</th>
+                </tr>
+            `;
+            
+            assessmentData.in_situ_conditions.forEach(condition => {
+                inSituConditionsHTML += `
+                    <tr>
+                        <td>${condition.condition_type || 'N/A'}</td>
+                        <td>${condition.test_result || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+            
+            inSituConditionsHTML += '</table>';
+        }
+
+        let structuralAnalysisHTML = '<p>No structural analysis available</p>';
+        if (assessmentData.structural_analysis && assessmentData.structural_analysis.length > 0) {
+            structuralAnalysisHTML = '<table width="100%" border="1" cellspacing="0" cellpadding="5">';
+            structuralAnalysisHTML += `
+                <tr>
+                    <th style="background-color: #f2f2f2;">Analysis Type</th>
+                    <th style="background-color: #f2f2f2;">Test Result</th>
+                </tr>
+            `;
+            
+            assessmentData.structural_analysis.forEach(analysis => {
+                structuralAnalysisHTML += `
+                    <tr>
+                        <td>${analysis.analysis_type || 'N/A'}</td>
+                        <td>${analysis.test_result || 'N/A'}</td>
+                    </tr>
+                `;
+            });
+            
+            structuralAnalysisHTML += '</table>';
+        }
+        try {
+       
+            const inSituTestsResponse = await fetch(`get-in-situ-tests.php?assessment_id=${id}`);
+            if (inSituTestsResponse.ok) {
+                const inSituTestsData = await inSituTestsResponse.json();
+                const inSituTests = inSituTestsData.data || [];
+                
+                if (inSituTests && Array.isArray(inSituTests) && inSituTests.length > 0) {
+                    inSituConditionsHTML = inSituTests.map(test => `
+                        <tr>
+                            <td>${test.id || 'N/A'}</td>
+                            <td>${test.assessment_id || id}</td>
+                            <td>${test.condition_type || 'N/A'}</td>
+                            <td>${test.test_result || 'N/A'}</td>
+                        </tr>
+                    `).join('');
+                }
+            }
+        } catch (e) {
+            console.error('Error fetching in-situ tests:', e);
+         
+        }
+        
+        let recommendationsHTML = '<p>No recommendations available</p>';
+        if (recommendations && Array.isArray(recommendations) && recommendations.length > 0) {
+            recommendationsHTML = '<ul style="margin-top: 2mm; padding-left: 5mm;">';
+            recommendations.forEach(rec => {
+                recommendationsHTML += `
+                    <li style="margin-bottom: 2mm;">
+                        ${rec.remediation_method || 'No specific method provided'}
+                    </li>
+                `;
+            });
+            recommendationsHTML += '</ul>';
+        }
+        
+    
+        let labTestsHTML = '<p>No laboratory tests recommended</p>';
+        if (labTests && Array.isArray(labTests) && labTests.length > 0) {
+            labTestsHTML = '<ul style="margin-top: 2mm; padding-left: 5mm;">';
+            labTests.forEach(test => {
+                labTestsHTML += `<li style="margin-bottom: 1mm;">${test.test_name || 'Unnamed test'}</li>`;
+            });
+            labTestsHTML += '</ul>';
+        }
+
+        const currentDate = new Date();
+        const reportNumber = `${currentDate.getFullYear()}-RTW-${(assessmentData.id || id).toString().padStart(3, '0')}`;
+
+        printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Assessment Report - ${assessmentData.structure_name || 'Report'}</title>
+            <style>
+                /* A4 paper dimensions: 210mm × 297mm */
+                @page {
+                    size: A4;
+                    margin: 1cm;
+                }
+                
+                @media print {
+                    html, body {
+                        width: 210mm;
+                        height: 297mm;
+                        margin: 0;
+                        padding: 0;
+                    }
+                    
+                    body {
+                        -webkit-print-color-adjust: exact !important;
+                        print-color-adjust: exact !important;
+                        color-adjust: exact !important;
+                    }
+                    
+                    .no-break {
+                        page-break-inside: avoid;
+                    }
+                    
+                    .page-break {
+                        page-break-before: always;
+                    }
+                    
+                    /* Add footer to each printed page */
+                    @page {
+                        @bottom-right {
+                            content: element(footer);
+                        }
+                    }
+                        #footer {
+                        position: fixed;
+                        bottom: 0;
+                        left: 0;
+                        right: 0;
+                        width: 100%;
+                        border-top: 0.5px solid #eee;
+                        padding-top: 3mm;
+                        background-color: white;
+                        font-size: 8pt;
+                        color: #666;
+                        text-align: right;
+                    }
+                    
+                  
+                    .content-wrapper {
+                        margin-bottom: 20mm;
+                    }
+                }
+                    
+            
+                
+                body {
+                    font-family: Arial, sans-serif;
+                    color: #333;
+                    line-height: 1.4;
+                    font-size: 11pt;
+                    padding: 10mm;
+                    box-sizing: border-box;
+                    max-width: 190mm; 
+                    margin: 0 auto;
+                }
+                
+                .header {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    margin-bottom: 15mm;
+                    page-break-inside: avoid;
+                    text-align: center;
+                }
+                
+                .logo {
+                    width: 20mm;
+                    height: 20mm;
+                    margin-right: 10mm;
+                }
+                
+                .university-info {
+                    text-align: center;
+                }
+                
+                .university-info p {
+                    margin: 0;
+                    font-size: 10pt;
+                }
+
+
+                .report-title {
+                    font-size: 14pt;
+                    font-weight: bold;
+                    text-align: center;
+                    margin: 15mm 0;
+                    page-break-after: avoid;
+                }
+                        
+                .assessment-details {
+                    margin-top: 10mm;
+                }
+                
+                .section {
+                    page-break-inside: avoid;
+                }
+                
+                .section-title {
+                    font-weight: bold;
+                    border-bottom: 1px solid #ccc;
+                    padding-bottom: 2mm;
+                    margin-bottom: 5mm;
+                    page-break-after: avoid;
+                    font-size: 12pt;
+                }
+                
+                .info-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 5mm;
+                }
+                
+                .info-item {
+                    margin-bottom: 3mm;
+                }
+                
+                .info-item strong {
+                    display: block;
+                    font-weight: bold;
+                    color: #555;
+                    font-size: 10pt;
+                }
+                
+                .severity-indicator {
+                    display: inline-block;
+                    padding: 1mm 2mm;
+                    border-radius: 1mm;
+                    font-weight: bold;
+                    font-size: 10pt;
+                }
+                
+                .high {
+                    background-color: #ffeeee;
+                    color: #cc0000;
+                    border: 0.5px solid #cc0000;
+                }
+                
+                .medium {
+                    background-color: #fff6e6;
+                    color: #cc7700;
+                    border: 0.5px solid #cc7700;
+                }
+                
+                .low {
+                    background-color: #e6ffe6;
+                    color: #007700;
+                    border: 0.5px solid #007700;
+                }
+                
+                table {
+                    width: 100%;
+                    border-collapse: collapse;
+                    margin-bottom: 5mm;
+                }
+                
+                table th, table td {
+                    border: 1px solid #ddd;
+                    padding: 2mm;
+                    text-align: left;
+                    font-size: 10pt;
+                }
+                
+                table th {
+                    background-color: #f2f2f2;
+                    font-weight: bold;
+                }
+                
+                table tr:nth-child(even) {
+                    background-color: #f9f9f9;
+                }
+                
+                #footer {
+                    font-size: 8pt;
+                    color: #666;
+                    text-align: right;
+                    border-top: 0.5px solid #eee;
+                    padding-top: 3mm;
+                    margin-top: 10mm;
+                }
+                
+                #footer p {
+                    margin: 1mm 0;
+                }  
+            </style>
+        </head>
+        <body>
+            <div class="content-wrapper">
+                <div class="header">
+                    <img src="pictures/school logo.png" alt="University Logo" class="logo">
+                    <div class="university-info">
+                        <p style="font-weight: bold;">BACHELOR OF SCIENCE IN CIVIL ENGINEERING</p>
+                        <p>College of Engineering, Architecture and Technology</p>
+                        <p>Notre Dame of Dadiangas University</p>
+                    </div>
+                </div>
+                
+                <div class="report-title">
+                    Retaining Wall Failure Assessment and Recommendation Report
+                </div>
+
+                <div class="assessment-details">
+                    <div class="section no-break">
+                        <div class="section-title">Basic Information</div>
+                        <div class="info-grid">
+                            <div class="info-item" style: left 2px;>
+                                <strong>Structure Name:</strong>
+                                ${assessmentData.structure_name || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Contract ID:</strong>
+                                ${assessmentData.contract_id || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Construction Date:</strong>
+                                ${assessmentData.date_of_construction ? new Date(assessmentData.date_of_construction).toLocaleDateString() : 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Age:</strong>
+                                ${age}
+                            </div>
+                            <div class="info-item">
+                                <strong>Inspection Date:</strong>
+                                ${assessmentData.date_of_inspection ? new Date(assessmentData.date_of_inspection).toLocaleDateString() : 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Location:</strong>
+                                ${locationString || 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section no-break">
+                        <div class="section-title">Structure Details</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Type of Design:</strong>
+                                ${assessmentData.type_of_design || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Material:</strong>
+                                ${assessmentData.type_of_material || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Height:</strong>
+                                ${assessmentData.height ? assessmentData.height + ' m' : 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Base Width:</strong>
+                                ${assessmentData.base ? assessmentData.base + ' m' : 'N/A'}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="section no-break">
+                        <div class="section-title">Visual Indicators</div>
+                        <div class="info-item">
+                            ${visualIndicatorsHTML}
+                        </div>
+                    </div>
+                    <div class="section no-break">
+                        <div class="section-title">In-Situ Conditions</div>
+                        ${inSituConditionsHTML}
+                    </div>
+
+                    <div class="section no-break">
+                        <div class="section-title">Structural Analysis</div>
+                        ${structuralAnalysisHTML}
+                    </div>
+
+                    <div class="section no-break">
+                        <div class="section-title">Assessment Results</div>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <strong>Severity Level:</strong>
+                                <div class="severity-indicator ${assessmentData.severity ? assessmentData.severity.toLowerCase() : 'unknown'}">
+                                    ${assessmentData.severity || 'Unknown'}
+                                </div>
+                            </div>
+                            <div class="info-item">
+                                <strong>Condition Diagnosis:</strong>
+                                ${assessmentData.condition_diagnosis || 'N/A'}
+                            </div>
+                            <div class="info-item">
+                                <strong>Failure Types:</strong>
+                                ${failureTypesHTML}
+                            </div>
+                            <div class="info-item">
+                                <strong>Cause of Failure:</strong>
+                                ${assessmentData.cause_of_failure || 'Not specified'}
+                            </div>
+                        </div>
+                        <div class="info-item" style="margin-top: 5mm;">
+                            <strong>Explanation:</strong>
+                            <p>${assessmentData.explanation || 'No detailed explanation available'}</p>
+                        </div>
+                    </div>
+
+                    <div class="section no-break">
+                        <div class="section-title">Recommendations</div>
+                        <div class="info-item">
+                            ${recommendationsHTML}
+                        </div>
+                    </div>
+
+                    <div class="section no-break">
+                        <div class="section-title">Recommended Laboratory Tests</div>
+                        <div class="info-item">
+                            ${labTestsHTML}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="footer">
+                <p>Report No: ${reportNumber}</p>
+                <p>Generated by: Thesis: Retaining Wall Assessment and Recommendation Tool</p>
+                <p>The tool that generated this report is an undergraduate thesis titled: "Development of a Failure Assessment and Recommendation Tool for Retaining Walls"</p>
+            </div>
+
+        </body>
+        </html>
+                `);
+
+                printWindow.document.close();
+                printWindow.focus();
+    
+                setTimeout(() => {
+                    try {
+                        printWindow.print();
+                    } catch (e) {
+                        console.error('Print dialog error:', e);
+                        alert('Error in print dialog. Please try printing manually from the opened window.');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Error printing assessment:', error);
+                
+                if (printWindow) {
+                    try {
+                        printWindow.close();
+                    } catch (e) {
+                        console.error('Error closing print window:', e);
+                    }
+                }
+                
+                alert(`Error printing assessment: ${error.message}. Please try again.`);
+            }
+        }
+            </script>
 </body>
 </html>

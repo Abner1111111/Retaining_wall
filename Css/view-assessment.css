@@ -1,3 +1,4 @@
+
 * {
     margin: 0;
     padding: 0;
@@ -297,5 +298,47 @@ body {
     .assessments-table {
         display: block;
         overflow-x: auto;
+    }
+}
+.print-button {
+    background-color: #4a5a51;
+    color: white;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    font-size: 0.9em;
+    margin-left: 5px;
+}
+
+.print-button:hover {
+    background-color: #394940;
+}
+
+/* Print-specific styles */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+    .print-container, .print-container * {
+        visibility: visible;
+    }
+    .print-container {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+    }
+    .modal {
+        position: absolute;
+        left: 0;
+        top: 0;
+        margin: 0;
+        padding: 0;
+        overflow: visible !important;
+    }
+    .close-button, .print-section-button {
+        display: none;
     }
 }

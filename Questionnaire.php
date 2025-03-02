@@ -364,7 +364,7 @@
                                                 'Tilting along the length of entire structure', 'Leaning of entire structure', 'Displacement of entire structure'],
                         'Wall Base' => ['Misalignment in foundation elements', 'Settlement', 'Soil Erosion'],
                         'Foundation Soil' => ['Muddy Soil', 'Water Pooling', 'Soil heave at the toe', 'Scouring', 'Settlement', 'Depression', 'Soft or Spongy', 'Separation of wall base and foundation soil'],
-                        'Backfill Soil' => ['Soil creep', 'Tension cracks', 'Landslide', 'Muddy Soil', 'Bulges'],
+                        'Backfill Soil' => ['Soil creep', 'Tension cracks', 'Landslide', 'Bulges'],
                         'Nearby Structure' => ['Natural loads contribution', 'Vibrations from nearby structures', 'Overloading signs', 'Cracks', 'Displacement', 'Settlement', 'Damaged Drainage System']
                     ];
                     echo "<div class='checkbox-container'>";
@@ -431,8 +431,7 @@
     </div>
 </div>
     <script>
-        // This function needs to be properly exposed to the window object
-// Define generateRecommendations function globally, outside any event handlers
+        
 function generateRecommendations(failureTypes, causeOfFailure, indicators) {
     const recommendations = {
         remediationMethod: {
@@ -443,14 +442,14 @@ function generateRecommendations(failureTypes, causeOfFailure, indicators) {
         supportingLabTests: []
     };
 
-    // Determine diagnosis based on severity
+
     if (indicators.length === 0) {
         recommendations.remediationMethod.diagnosis1.push('No need of Remediation');
     } else if (indicators.includes('Collapse of upper-height') || 
                indicators.includes('Displacement of entire structure')) {
         recommendations.remediationMethod.diagnosis3.push('Wall Replacement');
     } else {
-        // Select appropriate remediation methods based on failure types
+
         failureTypes.forEach(type => {
             switch(type) {
                 case 'Sliding':
@@ -509,7 +508,6 @@ function generateRecommendations(failureTypes, causeOfFailure, indicators) {
         });
     }
 
-    // Select supporting laboratory tests
     switch(causeOfFailure) {
         case 'Poor Drainage':
             recommendations.supportingLabTests.push(
@@ -582,12 +580,11 @@ function generateRecommendations(failureTypes, causeOfFailure, indicators) {
     return recommendations;
 }
 
-// This function needs to be properly exposed to the window object
 function showRecommendations(failureTypes, causeOfFailure, indicators) {
     const modal = document.getElementById('recommendationModal');
     const content = document.getElementById('recommendationContent');
     
-    // Convert parameters if they're strings (which can happen when called from HTML)
+
     if (typeof failureTypes === 'string') {
         try {
             failureTypes = JSON.parse(failureTypes);
@@ -631,10 +628,8 @@ function showRecommendations(failureTypes, causeOfFailure, indicators) {
                 </div>
             </div>`;
     } else {
-        // Generate recommendations based on the identified issues
         const recommendations = generateRecommendations(failureTypes, causeOfFailure, indicators);
-        
-        // Remediation Methods Section
+ 
         html += '<div class="recommendation-section">';
         html += '<h3>Remediation Methods</h3>';
         
@@ -667,7 +662,6 @@ function showRecommendations(failureTypes, causeOfFailure, indicators) {
             `;
         }
         
-        // Supporting Lab Tests Section
         if (recommendations.supportingLabTests.length > 0) {
             html += `
                 <div class="recommendation-section">
@@ -684,13 +678,11 @@ function showRecommendations(failureTypes, causeOfFailure, indicators) {
     content.innerHTML = html;
     modal.style.display = 'block';
 
-    // Close button functionality
     const closeBtn = document.querySelector('.close-modal');
     closeBtn.onclick = function() {
         modal.style.display = 'none';
     };
 
-    // Click outside to close
     window.onclick = function(event) {
         if (event.target === modal) {
             modal.style.display = 'none';
@@ -698,7 +690,6 @@ function showRecommendations(failureTypes, causeOfFailure, indicators) {
     };
 }
 
-// Helper function to determine failure types
 function determineFailureTypes(indicators) {
     const failureTypes = new Set();
     
@@ -726,7 +717,7 @@ function determineFailureTypes(indicators) {
     return Array.from(failureTypes).slice(0, 2);
 }
 
-// Helper function to determine cause of failure
+
 function determineCauseOfFailure(indicators) {
     const causes = {
         'Water Seepage marks': 'Poor Drainage',
@@ -750,7 +741,7 @@ function determineCauseOfFailure(indicators) {
     return 'Multiple Contributing Factors';
 }
 
-// Helper function to determine condition diagnosis
+
 function determineConditionDiagnosis(indicators, failureTypes) {
     const criticalIndicators = [
         'Collapse of upper-height',
@@ -782,7 +773,7 @@ function determineConditionDiagnosis(indicators, failureTypes) {
         return {
             severity: 'low',
             diagnosis: 'Minor Issues Present',
-            explanation: 'Early signs of wear detected. Preventive maintenance recommended.'
+            explanation: 'Early signs of wear  detected. Preventive maintenance recommended.'
         };
     }
 
@@ -868,26 +859,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 formData.append('conditionDiagnosis', conditionDiagnosis.diagnosis);
                 formData.append('severity', conditionDiagnosis.severity);
                 formData.append('explanation', conditionDiagnosis.explanation);
-                
-                // Send the data via AJAX to save in database
+
                 fetch('save-assessment.php', {
                     method: 'POST',
                     body: formData
                 })
                 .then(response => response.json())
                 .then(data => {
-                    // Show success message
                     if (data.status === 'success') {
-                        // Display results
                         displayResults(checkedIndicators, failureTypes, causeOfFailure, conditionDiagnosis);
                         
-                        // Show a success message
                         const successAlert = document.createElement('div');
                         successAlert.className = 'success-alert';
                         successAlert.textContent = 'Assessment saved successfully!';
                         form.prepend(successAlert);
                         
-                        // Remove success message after 5 seconds
                         setTimeout(() => {
                             if (successAlert.parentNode) {
                                 successAlert.parentNode.removeChild(successAlert);
@@ -923,7 +909,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Initialize Select2 if it exists
     if (window.jQuery && $.fn.select2 && $('#wall_material').length) {
         $('#wall_material').select2({
             placeholder: "-- Select Material --",
@@ -965,7 +950,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Expose key functions to window object for use elsewhere
     window.determineFailureTypes = determineFailureTypes;
     window.determineCauseOfFailure = determineCauseOfFailure;
     window.determineConditionDiagnosis = determineConditionDiagnosis;
