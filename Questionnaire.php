@@ -1,11 +1,9 @@
     <?php
     session_start();
     require "back/db_configs.php";
+    require "includes/validate_session.php";
   
-    if (!isset($_SESSION['authenticated']) || !$_SESSION['authenticated']) {
-        header("Location: index.php");
-        exit();
-    }
+  
     $stmt = $pdo->prepare("SELECT first_name, last_name FROM users WHERE id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
@@ -139,50 +137,50 @@
                     </div>
 
                     <div class="form-group">
-    <label for="in_situ_conditions">In-Situ Conditions</label>
-    <div id="in-situ-conditions-container">
-        <div class="in-situ-entry" style="display: flex; gap: 10px; margin-bottom: 10px;">
-            <select class="in-situ-condition" name="in_situ_conditions[]" required style="flex: 1;">
-                <option value="">-- Select Condition --</option>
-                <option value="(FFM, DM) Fixed Funnel Method or Direct Measurement">(FFM, DM) Fixed Funnel Method or Direct Measurement</option>
-                <option value="(PCT) Proctor Compaction Test">(PCT) Proctor Compaction Test</option>
-                <option value="(DST) Direct Shear Test">(DST) Direct Shear Test</option>
-                <option value="ALT) Atterberg Limits Test">(ALT) Atterberg Limits Test</option>
-                <option value="(MCT) Moisture Content Test">(MCT) Moisture Content Test</option>
-                <option value="(CH&FHT) Constant Head and Falling Head Test">(CH&FHT) Constant Head and Falling Head Test</option>
-                <option value="(C/WT) Capillary/Wicking Test">(C/WT) Capillary/Wicking Test</option>
-                <option value="(GDM) Groundwater Depth Measurement">(GDM) Groundwater Depth Measurement</option>
-                <option value="(CT) Consolidation Test">(CT) Consolidation Test</option>
-                <option value="(SA) Sieve Analysis">(SA) Sieve Analysis</option>
-                <option value="(IST) Interface Shear Test">(IST) Interface Shear Test</option>
-                <option value="(VSTU) Vane Shear Test Undrained">(VSTU) Vane Shear Test Undrained</option>
-                <option value="(TCT) Triaxial Compression Test">(TCT) Triaxial Compression Test</option>
-                <option value="(UUT) Unconsolidated Undrained Test">(UUT) Unconsolidated Undrained Test</option>
-                <option value="(SLT) Surcharge Load Testing">(SLT) Surcharge Load Testing</option>
-                <option value="(CPT) Cone Penetration Test">(CPT) Cone Penetration Test</option>
-                <option value="(SPT) Standard Penetration Test">(SPT) Standard Penetration Test</option>
-            </select>
-            <input type="text" class="in-situ-value" name="in_situ_values[]" placeholder="Enter test result" disabled style="flex: 1;">
-            <button type="button" class="remove-test" style="display: none; background: #dc3545; padding: 0 10px;">✕</button>
-        </div>
-    </div>
-    <button type="button" id="add-in-situ-test" style="margin-top: 10px; background: #4682B4; padding: 8px 15px; font-size: 14px;">+ Add Another Test</button>
-</div>
-<script src="js/in-situ-entry-fields.js"></script>
+                        <label for="in_situ_conditions">In-Situ Conditions</label>
+                        <div id="in-situ-conditions-container">
+                            <div class="in-situ-entry" style="display: flex; gap: 10px; margin-bottom: 10px;">
+                                <select class="in-situ-condition" name="in_situ_conditions[]" required style="flex: 1;">
+                                    <option value="">-- Select Condition --</option>
+                                
+                                    <option value="(PCT) Proctor Compaction Test">(PCT) Proctor Compaction Test</option>
+                                    <option value="(DST) Direct Shear Test">(DST) Direct Shear Test</option>
+                                    <option value="ALT) Atterberg Limits Test">(ALT) Atterberg Limits Test</option>
+                                    <option value="(MCT) Moisture Content Test">(MCT) Moisture Content Test</option>
+                                    <option value="(CH&FHT) Constant Head and Falling Head Test">(CH&FHT) Constant Head and Falling Head Test</option>
+                                    <option value="(C/WT) Capillary/Wicking Test">(C/WT) Capillary/Wicking Test</option>
+                                    <option value="(GDM) Groundwater Depth Measurement">(GDM) Groundwater Depth Measurement</option>
+                                    <option value="(CT) Consolidation Test">(CT) Consolidation Test</option>
+                                    <option value="(SA) Sieve Analysis">(SA) Sieve Analysis</option>
+                                    <option value="(IST) Interface Shear Test">(IST) Interface Shear Test</option>
+                                    <option value="(VSTU) Vane Shear Test Undrained">(VSTU) Vane Shear Test Undrained</option>
+                                    <option value="(TCT) Triaxial Compression Test">(TCT) Triaxial Compression Test</option>
+                                    <option value="(UUT) Unconsolidated Undrained Test">(UUT) Unconsolidated Undrained Test</option>
+                                    <option value="(SLT) Surcharge Load Testing">(SLT) Surcharge Load Testing</option>
+                                    <option value="(CPT) Cone Penetration Test">(CPT) Cone Penetration Test</option>
+                                    <option value="(SPT) Standard Penetration Test">(SPT) Standard Penetration Test</option>
+                                </select>
+                                <input type="text" class="in-situ-value" name="in_situ_values[]" placeholder="Enter test result" disabled style="flex: 1;">
+                                <button type="button" class="remove-test" style="display: none; background: #dc3545; padding: 0 10px;">✕</button>
+                            </div>
+                        </div>
+                        <button type="button" id="add-in-situ-test" style="margin-top: 10px; background: #4682B4; padding: 8px 15px; font-size: 14px;">+ Add Another Test</button>
+                    </div>
+                    <script src="js/in-situ-entry-fields.js"></script>
 
 
-    <div class="form-group">
-    <label for="structural_analysiss">Structural Analysis</label>
-                <div style="display: flex; gap: 10px;">
-                    <select id="structural_analysis" name="structural_analysis" required style="flex: 1;">
-                        <option value="">-- Select Condition --</option>
-                        <option value="(D/U WT) Density/Unit Weight Test">(D/U WT) Density/Unit Weight Test</option>
-                        <option value="(CST) Compressive Strength Test">(CST) Compressive Strength Test</option>
-                       
-                    </select>
-                    <input type="text" id="structural_analysis_value" name="structural_analysis_value" placeholder="Enter test result" disabled style="flex: 1;">
-                </div>
-            </div>
+                        <div class="form-group">
+                        <label for="structural_analysiss">Structural Analysis</label>
+                                    <div style="display: flex; gap: 10px;">
+                                        <select id="structural_analysis" name="structural_analysis" required style="flex: 1;">
+                                            <option value="">-- Select Condition --</option>
+                                            <option value="(D/U WT) Density/Unit Weight Test">(D/U WT) Density/Unit Weight Test</option>
+                                            <option value="(CST) Compressive Strength Test">(CST) Compressive Strength Test</option>
+                                        
+                                        </select>
+                                        <input type="text" id="structural_analysis_value" name="structural_analysis_value" placeholder="Enter test result" disabled style="flex: 1;">
+                                    </div>
+                                </div>
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
     const structuralAnalysisGroup = document.querySelector('label[for="structural_analysiss"]').parentElement;
@@ -391,7 +389,6 @@
                     <div class="checkbox-group">
                         <?php
                         $methods = [
-                            'Finite Element Analysis (FEA)',
                             'Finite Difference Methods (FDM)',
                             'In-Situ Conditions'
                         ];
@@ -918,7 +915,6 @@ document.addEventListener('DOMContentLoaded', function() {
         const labTests = {
             "Poor soil compaction": "Proctor Compaction Test (PCT)",
             "Uneven soil compaction": "Field Density Test (FDT)",
-            "Slope greater than the Angle of Repose": "Fixed Funnel Method (FFM), Direct Measurement (DM)",
             "High Unit Weight": "Density/Unit Weight Test (D/U WT)",
             "Low Density": "Density/Unit Weight Test (D/U WT)",
             "High Cohesion": "Direct Shear Test (DST)",
