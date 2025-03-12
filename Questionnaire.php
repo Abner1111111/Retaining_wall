@@ -142,7 +142,6 @@
                             <div class="in-situ-entry" style="display: flex; gap: 10px; margin-bottom: 10px;">
                                 <select class="in-situ-condition" name="in_situ_conditions[]" required style="flex: 1;">
                                     <option value="">-- Select Condition --</option>
-                                
                                     <option value="(PCT) Proctor Compaction Test">(PCT) Proctor Compaction Test</option>
                                     <option value="(DST) Direct Shear Test">(DST) Direct Shear Test</option>
                                     <option value="ALT) Atterberg Limits Test">(ALT) Atterberg Limits Test</option>
@@ -182,172 +181,415 @@
                                     </div>
                                 </div>
             <script>
-                document.addEventListener('DOMContentLoaded', function() {
-    const structuralAnalysisGroup = document.querySelector('label[for="structural_analysiss"]').parentElement;
-    const container = document.createElement('div');
-    container.id = 'structural-analysis-container';
-    const label = structuralAnalysisGroup.querySelector('label');
-    const originalContent = structuralAnalysisGroup.querySelector('div[style="display: flex; gap: 10px;"]');
-    
-    const firstEntry = originalContent.cloneNode(true);
-    firstEntry.classList.add('structural-analysis-entry');
-    firstEntry.style.marginBottom = '10px';
-    
-    const removeButton = document.createElement('button');
-    removeButton.type = 'button';
-    removeButton.className = 'remove-structural-test';
-    removeButton.innerHTML = '✕';
-    removeButton.style.background = '#dc3545';
-    removeButton.style.padding = '0 10px';
-    removeButton.style.display = 'none';
-    firstEntry.appendChild(removeButton);
-    
-    structuralAnalysisGroup.removeChild(originalContent);
-    
-    structuralAnalysisGroup.appendChild(container);
-    container.appendChild(firstEntry);
-    
-    const addButton = document.createElement('button');
-    addButton.type = 'button';
-    addButton.id = 'add-structural-test';
-    addButton.innerHTML = '+ Add Another Structural Test';
-    addButton.style.marginTop = '10px';
-    addButton.style.background = '#4682B4';
-    addButton.style.padding = '8px 15px';
-    addButton.style.fontSize = '14px';
-    addButton.style.color = 'white';
-    addButton.style.border = 'none';
-    addButton.style.borderRadius = '5px';
-    addButton.style.cursor = 'pointer';
-    structuralAnalysisGroup.appendChild(addButton);
-    
-    const firstSelect = firstEntry.querySelector('select');
-    const firstInput = firstEntry.querySelector('input');
-    firstSelect.name = 'structural_analysis[]';
-    firstInput.name = 'structural_analysis_value[]';
-    
-    function updateDropdownOptions() {
-        const allSelects = document.querySelectorAll('.structural-analysis-entry select');
-        const selectedValues = Array.from(allSelects).map(select => select.value).filter(value => value !== '');
+              document.addEventListener('DOMContentLoaded', function() {
+        const testUnits = {
+            "(PCT) Proctor Compaction Test": {
+                "Maximum Dry Density": "kN/m³",
+                "Optimum Moisture Content": "%"
+            },
+            "(DST) Direct Shear Test": {
+                "Cohesion": "kPa",
+                "Angle of Internal Friction": "degrees",
+                "Shear Strength": "kPa"
+            },
+            "(ALT) Atterberg Limits Test": {
+                "Plasticity Index": "%",
+                "Liquid Limit": "%"
+            },
+            "(MCT) Moisture Content Test": {
+                "Moisture Content": "%"
+            },
+            "(CH&FHT) Constant Head and Falling Head Test": {
+                "Permeability": "m/s"
+            },
+            "(C/WT) Capillary/Wicking Test": {
+                "Capillary Rise Height": "m"
+            },
+            "(GDM) Groundwater Depth Measurement": {
+                "Water Table Depth": "m"
+            },
+            "(CT) Consolidation Test": {
+                "Compression Index": "",
+                "Void Ratio": ""
+            },
+            "(SA) Sieve Analysis": {
+                "Grain Size Distribution": "%"
+            },
+            "(IST) Interface Shear Test": {
+                "Shear Strength at Interface": "kPa"
+            },
+            "(VSTU) Vane Shear Test Undrained": {
+                "Undrained Shear Strength": "kPa"
+            },
+            "(TCT) Triaxial Compression Test": {
+                "Shear Strength": "kPa"
+            },
+            "(UUT) Unconsolidated Undrained Test": {
+                "Undrained Shear Strength": "kPa"
+            },
+            "(SLT) Surcharge Load Testing": {
+                "Settlement within 24 hours": "mm"
+            },
+            "(CPT) Cone Penetration Test": {
+                "Cone Resistance": "kPa"
+            },
+            "(SPT) Standard Penetration Test": {
+                "N-value": "blows per 30cm"
+            },
+            
+            // Structural Analysis tests
+            "(D/U WT) Density/Unit Weight Test": {
+                "Bulk Density": "kN/m³",
+                "Dry Density": "kN/m³"
+            },
+            "(CST) Compressive Strength Test": {
+                "Compressive Strength": "kPa"
+            }
+        };
 
-        allSelects.forEach(select => {
-            const currentValue = select.value;
+        // Function to update the input field based on the selected test
+        function updateInputField(select, input) {
+            const selectedTest = select.value;
+            
+            if (selectedTest) {
+                input.disabled = false;
+                
+                // Get the test parameters
+                const testParameters = testUnits[selectedTest];
+                
+                if (testParameters) {
+                    // If test has multiple parameters, create a sub-selection dropdown
+                    if (Object.keys(testParameters).length > 1) {
+                        // Remove existing sub-parameter selector if any
+                        const existingSubParam = select.parentElement.querySelector('.sub-parameter');
+                        if (existingSubParam) {
+                            select.parentElement.removeChild(existingSubParam);
+                        }
+                        
+                        // Create sub-parameter dropdown
+                        const subParamSelect = document.createElement('select');
+                        subParamSelect.className = 'sub-parameter';
+                        subParamSelect.style.flex = '1';
+                        
+                        // Add option for each parameter
+                        const defaultOption = document.createElement('option');
+                        defaultOption.value = "";
+                        defaultOption.textContent = "-- Select Parameter --";
+                        subParamSelect.appendChild(defaultOption);
+                        
+                        for (const param in testParameters) {
+                            const option = document.createElement('option');
+                            option.value = param;
+                            option.textContent = param;
+                            subParamSelect.appendChild(option);
+                        }
+                        
+                        // Insert after the test select dropdown
+                        select.parentElement.insertBefore(subParamSelect, input);
+                        
+                        // Update input field when sub-parameter changes
+                        subParamSelect.addEventListener('change', function() {
+                            const selectedParam = this.value;
+                            if (selectedParam) {
+                                const unit = testParameters[selectedParam];
+                                updateInputWithUnit(input, unit);
+                                input.dataset.parameter = selectedParam;
+                            } else {
+                                input.placeholder = 'Select parameter first';
+                                input.disabled = true;
+                            }
+                        });
+                        
+                        input.placeholder = 'Select parameter first';
+                        input.disabled = true;
+                    } else {
+                        // Single parameter test - get the only key/value pair
+                        const param = Object.keys(testParameters)[0];
+                        const unit = testParameters[param];
+                        updateInputWithUnit(input, unit);
+                        input.dataset.parameter = param;
+                    }
+                } else {
+                    // Fallback for undefined test
+                    input.placeholder = `Enter ${selectedTest} result`;
+                }
+                
+                input.focus();
+            } else {
+                // No test selected
+                input.disabled = true;
+                input.value = '';
+                input.placeholder = 'Enter test result';
+                
+                // Remove sub-parameter selector if any
+                const existingSubParam = select.parentElement.querySelector('.sub-parameter');
+                if (existingSubParam) {
+                    select.parentElement.removeChild(existingSubParam);
+                }
+            }
+        }
+        
+        // Function to update input with appropriate unit
+        function updateInputWithUnit(input, unit) {
+            // Clear existing unit display if any
+            const existingUnitDisplay = input.parentElement.querySelector('.unit-display');
+            if (existingUnitDisplay) {
+                input.parentElement.removeChild(existingUnitDisplay);
+            }
+            
+            // Set up input based on unit
+            if (unit) {
+                input.placeholder = `Enter value`;
+                
+                // Create unit display element
+                const unitDisplay = document.createElement('span');
+                unitDisplay.className = 'unit-display';
+                unitDisplay.textContent = unit;
+                unitDisplay.style.padding = '8px';
+                unitDisplay.style.backgroundColor = '#f0f0f0';
+                unitDisplay.style.border = '1px solid #ced4da';
+                unitDisplay.style.borderRadius = '0 4px 4px 0';
+                unitDisplay.style.marginLeft = '-1px';
+                
+                // Position input and unit display in a container
+                const inputContainer = document.createElement('div');
+                inputContainer.style.display = 'flex';
+                inputContainer.style.flex = '1';
+                
+                // Move input into the container
+                input.parentNode.insertBefore(inputContainer, input);
+                inputContainer.appendChild(input);
+                inputContainer.appendChild(unitDisplay);
+                
+                // Adjust input style
+                input.style.borderRadius = '4px 0 0 4px';
+                input.style.flex = '1';
+                
+                // Set validation based on unit type
+                if (unit.includes('%')) {
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '100';
+                    input.step = '0.1';
+                } else if (unit.includes('kPa') || unit.includes('kN/m') || unit.includes('m') || unit.includes('mm')) {
+                    input.type = 'number';
+                    input.min = '0';
+                    input.step = '0.01';
+                } else if (unit.includes('degrees')) {
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '90';
+                    input.step = '0.1';
+                } else if (unit.includes('blows')) {
+                    input.type = 'number';
+                    input.min = '0';
+                    input.step = '1';
+                } else {
+                    // Default for other units
+                    input.type = 'number';
+                    input.step = '0.01';
+                }
+            } else {
+                // No unit (like void ratio)
+                input.placeholder = 'Enter value (no unit)';
+                input.type = 'number';
+                input.step = '0.01';
+            }
+        }
 
-            Array.from(select.options).forEach(option => {
-                option.disabled = false;
+        // Initialize in-situ conditions section
+        const inSituContainer = document.getElementById('in-situ-conditions-container');
+        if (inSituContainer) {
+            // Add listener to existing select
+            const existingSelect = inSituContainer.querySelector('select.in-situ-condition');
+            const existingInput = inSituContainer.querySelector('input.in-situ-value');
+            
+            existingSelect.addEventListener('change', function() {
+                updateInputField(this, existingInput);
             });
-
-            selectedValues.forEach(value => {
-                if (value !== currentValue && value !== '') {
-                    const option = select.querySelector(`option[value="${value}"]`);
-                    if (option) option.disabled = true;
+            
+            // Handle add button click
+            const addInSituButton = document.getElementById('add-in-situ-test');
+            if (addInSituButton) {
+                addInSituButton.addEventListener('click', function() {
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'in-situ-entry';
+                    entryDiv.style.display = 'flex';
+                    entryDiv.style.gap = '10px';
+                    entryDiv.style.marginBottom = '10px';
+                    
+                    const newSelect = existingSelect.cloneNode(true);
+                    newSelect.value = '';
+                    
+                    const newInput = document.createElement('input');
+                    newInput.type = 'text';
+                    newInput.className = 'in-situ-value';
+                    newInput.name = 'in_situ_values[]';
+                    newInput.placeholder = 'Enter test result';
+                    newInput.disabled = true;
+                    newInput.style.flex = '1';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'remove-test';
+                    removeBtn.innerHTML = '✕';
+                    removeBtn.style.background = '#dc3545';
+                    removeBtn.style.padding = '0 10px';
+                    removeBtn.style.color = 'white';
+                    removeBtn.style.border = 'none';
+                    removeBtn.style.borderRadius = '5px';
+                    removeBtn.style.cursor = 'pointer';
+                    removeBtn.style.display = 'block';
+                    
+                    entryDiv.appendChild(newSelect);
+                    entryDiv.appendChild(newInput);
+                    entryDiv.appendChild(removeBtn);
+                    inSituContainer.appendChild(entryDiv);
+                    
+                    // Add change listener to the new select
+                    newSelect.addEventListener('change', function() {
+                        updateInputField(this, newInput);
+                    });
+                    
+                    // Show remove button on existing entries
+                    document.querySelectorAll('.in-situ-entry .remove-test').forEach(btn => {
+                        btn.style.display = 'block';
+                    });
+                });
+            }
+            
+            // Handle remove buttons
+            inSituContainer.addEventListener('click', function(e) {
+                if (e.target && e.target.className === 'remove-test') {
+                    const entry = e.target.parentElement;
+                    inSituContainer.removeChild(entry);
+                    
+                    // Hide remove button if only one entry remains
+                    if (inSituContainer.querySelectorAll('.in-situ-entry').length <= 1) {
+                        document.querySelectorAll('.in-situ-entry .remove-test').forEach(btn => {
+                            btn.style.display = 'none';
+                        });
+                    }
                 }
             });
-        });
-    }
-    
-    function initializeStructuralSelectListeners() {
-        document.querySelectorAll('.structural-analysis-entry select').forEach(select => {
-            if (!select.hasEventListener) {
+        }
+
+        // Initialize structural analysis section (using the existing code structure)
+        const structuralContainer = document.getElementById('structural-analysis-container');
+        if (structuralContainer) {
+            document.querySelectorAll('.structural-analysis-entry select').forEach(select => {
+                const input = select.parentElement.querySelector('input');
+                
+                // Replace the existing change listener
                 select.addEventListener('change', function() {
-                    const inputField = this.parentElement.querySelector('input');
-                    
-                    if (this.value) {
-                        inputField.disabled = false;
-                        inputField.placeholder = `Enter ${this.value} result`;
-                        inputField.focus();
-                    } else {
-                        inputField.disabled = true;
-                        inputField.value = '';
-                        inputField.placeholder = 'Enter test result';
-                    }
-                    
+                    updateInputField(this, input);
                     updateDropdownOptions();
                 });
-                select.hasEventListener = true;
+            });
+            
+            // The rest of the structural analysis code remains as is
+            // But when adding new entries, use updateInputField
+            const addStructuralButton = document.getElementById('add-structural-test');
+            if (addStructuralButton) {
+                const originalAddClick = addStructuralButton.onclick;
+                addStructuralButton.onclick = null;
+                
+                addStructuralButton.addEventListener('click', function() {
+                    const firstSelect = structuralContainer.querySelector('select');
+                    
+                    const entryDiv = document.createElement('div');
+                    entryDiv.className = 'structural-analysis-entry';
+                    entryDiv.style.display = 'flex';
+                    entryDiv.style.gap = '10px';
+                    entryDiv.style.marginBottom = '10px';
+                
+                    const newSelect = firstSelect.cloneNode(true);
+                    newSelect.value = '';
+                    
+                    const newInput = document.createElement('input');
+                    newInput.type = 'text';
+                    newInput.name = 'structural_analysis_value[]';
+                    newInput.placeholder = 'Enter test result';
+                    newInput.disabled = true;
+                    newInput.style.flex = '1';
+                    
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.className = 'remove-structural-test';
+                    removeBtn.innerHTML = '✕';
+                    removeBtn.style.background = '#dc3545';
+                    removeBtn.style.padding = '0 10px';
+                    removeBtn.style.color = 'white';
+                    removeBtn.style.border = 'none';
+                    removeBtn.style.borderRadius = '5px';
+                    removeBtn.style.cursor = 'pointer';
+                    
+                    removeBtn.addEventListener('click', function() {
+                        structuralContainer.removeChild(entryDiv);
+                        updateAddButtonVisibility();
+                        updateDropdownOptions();
+                    });
+                    
+                    entryDiv.appendChild(newSelect);
+                    entryDiv.appendChild(newInput);
+                    entryDiv.appendChild(removeBtn);
+                    structuralContainer.appendChild(entryDiv);
+                    
+                    // Add change listener to the new select
+                    newSelect.addEventListener('change', function() {
+                        updateInputField(this, newInput);
+                        updateDropdownOptions();
+                    });
+                    
+                    updateAddButtonVisibility();
+                    updateDropdownOptions();
+                });
             }
-        });
-    }
-
-    function updateAddButtonVisibility() {
-        const testCount = document.querySelectorAll('.structural-analysis-entry').length;
-        
-        if (testCount >= 2) {
-            addButton.style.display = 'none';
-        } else {
-            addButton.style.display = 'block';
         }
 
-        if (testCount > 1) {
-            document.querySelectorAll('.remove-structural-test').forEach(btn => {
-                btn.style.display = 'block';
+        // Keep the dropdown options update function as is
+        function updateDropdownOptions() {
+            const allSelects = document.querySelectorAll('.structural-analysis-entry select');
+            const selectedValues = Array.from(allSelects).map(select => select.value).filter(value => value !== '');
+
+            allSelects.forEach(select => {
+                const currentValue = select.value;
+
+                Array.from(select.options).forEach(option => {
+                    option.disabled = false;
+                });
+
+                selectedValues.forEach(value => {
+                    if (value !== currentValue && value !== '') {
+                        const option = select.querySelector(`option[value="${value}"]`);
+                        if (option) option.disabled = true;
+                    }
+                });
             });
-        } else {
-            document.querySelectorAll('.remove-structural-test').forEach(btn => {
-                btn.style.display = 'none';
-            });
         }
+
+        // Keep the button visibility function as is
+        function updateAddButtonVisibility() {
+            const testCount = document.querySelectorAll('.structural-analysis-entry').length;
+            const addButton = document.getElementById('add-structural-test');
+            
+            if (testCount >= 2) {
+                addButton.style.display = 'none';
+            } else {
+                addButton.style.display = 'block';
+            }
+
+            if (testCount > 1) {
+                document.querySelectorAll('.remove-structural-test').forEach(btn => {
+                    btn.style.display = 'block';
+                });
+            } else {
+                document.querySelectorAll('.remove-structural-test').forEach(btn => {
+                    btn.style.display = 'none';
+                });
+            }
     }
-
-    initializeStructuralSelectListeners();
-    
-
-    addButton.addEventListener('click', function() {
-        const entryDiv = document.createElement('div');
-        entryDiv.className = 'structural-analysis-entry';
-        entryDiv.style.display = 'flex';
-        entryDiv.style.gap = '10px';
-        entryDiv.style.marginBottom = '10px';
-    
-        const newSelect = firstSelect.cloneNode(true);
-        newSelect.value = '';
-        
-        const newInput = document.createElement('input');
-        newInput.type = 'text';
-        newInput.name = 'structural_analysis_value[]';
-        newInput.placeholder = 'Enter test result';
-        newInput.disabled = true;
-        newInput.style.flex = '1';
-        
-        const removeBtn = document.createElement('button');
-        removeBtn.type = 'button';
-        removeBtn.className = 'remove-structural-test';
-        removeBtn.innerHTML = '✕';
-        removeBtn.style.background = '#dc3545';
-        removeBtn.style.padding = '0 10px';
-        removeBtn.style.color = 'white';
-        removeBtn.style.border = 'none';
-        removeBtn.style.borderRadius = '5px';
-        removeBtn.style.cursor = 'pointer';
-        
-        removeBtn.addEventListener('click', function() {
-            container.removeChild(entryDiv);
-            updateAddButtonVisibility();
-            updateDropdownOptions();
-        });
-        
-        entryDiv.appendChild(newSelect);
-        entryDiv.appendChild(newInput);
-        entryDiv.appendChild(removeBtn);
-        container.appendChild(entryDiv);
-        updateAddButtonVisibility();
-    
-        initializeStructuralSelectListeners();
-
-        updateDropdownOptions();
-    });
-
-    document.addEventListener('click', function(e) {
-        if (e.target && e.target.className === 'remove-structural-test') {
-            const entry = e.target.parentElement;
-            container.removeChild(entry);
-            updateAddButtonVisibility();
-            updateDropdownOptions();
-        }
-    });
-
-    updateAddButtonVisibility();
-});       
+});
             </script>
     </div>
 
